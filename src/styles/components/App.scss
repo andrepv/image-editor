@@ -1,0 +1,7 @@
+.app {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-column-gap: 25px;
+  grid-template-rows: 60px 1fr;
+  min-height: 100vh;
+}

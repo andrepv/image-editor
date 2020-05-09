@@ -1,0 +1,20 @@
+@import "../variables.scss";
+
+.menu {
+  grid-row-start: 1;
+  grid-row-end: 3;
+  background-color: $menu-bg;
+  &__item {
+    padding: 24px;
+    cursor: pointer;
+    text-align: center;
+    svg {
+      width: 30px;
+      height: 30px;
+    }
+    &:hover {
+      background: $toolbar-bg;
+      transition-duration: .3s;
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "extends": "react-app",
+  "rules": {
+    "no-console": [
+      "error",
+      {
+        "allow": [
+          "error"
+        ]
+      }
+    ],
+    "array-callback-return": "error",
+    "curly": "error",
+    "eqeqeq": "error",
+    "no-else-return": "error",
+    "no-implicit-coercion": "error",
+    "no-loop-func": "error",
+    "no-multi-spaces": "error",
+    "no-param-reassign": "error",
+    "no-useless-return": "error",
+    "no-shadow": "error",
+    "no-undef-init": "error",
+    "array-bracket-spacing": "error",
+    "array-element-newline": [
+      "error",
+      "consistent"
+    ],
+    "block-spacing": "error",
+    "brace-style": "error",
+    "comma-dangle": [
+      "error",
+      "always-multiline"
+    ],
+    "comma-spacing": "error",
+    "computed-property-spacing": "error",
+    "eol-last": [
+      "error",
+      "never"
+    ],
+    "keyword-spacing": "error",
+    "lines-between-class-members": "error",
+    "max-len": "error",
+    "no-multiple-empty-lines": "error",
+    "no-trailing-spaces": "error",
+    "quote-props": [
+      "error",
+      "as-needed"
+    ],
+    "quotes": [
+      "error",
+      "double",
+      {
+        "allowTemplateLiterals": true
+      }
+    ],
+    "semi": "error",
+    "space-before-blocks": "error"
+  }
+}

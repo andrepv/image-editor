@@ -1,0 +1,31 @@
+@import "../variables";
+
+.header {
+  display: grid;
+  justify-content: flex-end;
+  grid-column-start: 2;
+  grid-column-end: 13;
+  grid-row-start: 1;
+  &__items {
+    display: flex;
+    align-items: center;
+  }
+  &__item {
+    padding: 0 20px;
+    cursor: pointer;
+    svg {
+      width: 30px;
+      height: 25px;
+    }
+  }
+  @for $i from 1 through 3 {
+    &__item:nth-child(#{$i}) svg {
+      height: 22px;
+    }
+  }
+  .separator {
+    width: 2px;
+    background: $border-color;
+    height: 26px;
+  }
+}

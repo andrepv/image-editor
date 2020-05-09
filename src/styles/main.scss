@@ -1,0 +1,12 @@
+@import "./variables";
+@import "./components/app";
+@import "./components/header";
+@import "./components/menu";
+
+body {
+  background-color: $main-bg;
+}
+
+svg {
+  fill: $text-color;
+}
