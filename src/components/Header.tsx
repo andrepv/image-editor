@@ -6,6 +6,7 @@ import { ReactComponent as Redo } from "../assets/redo.svg";
 import { ReactComponent as Search } from "../assets/search.svg";
 import { ReactComponent as Upload } from "../assets/upload.svg";
 import { ReactComponent as Save } from "../assets/save.svg";
+import Tooltip from "./Tooltip";
 
 interface IHeaderItems {
   icon: React.ReactElement;
@@ -27,9 +28,11 @@ const Header: React.FC = () => {
         {items.map((item, index) => {
           return (
             <React.Fragment>
-              <div className="header__item">
-                {item.icon}
-              </div>
+              <Tooltip content={item.name} placement="bottom">
+                <div className="header__item">
+                  {item.icon}
+                </div>
+              </Tooltip>
               {index === 2 && <div className="separator"></div>}
             </React.Fragment>
           );

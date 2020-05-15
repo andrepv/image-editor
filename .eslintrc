@@ -1,14 +1,14 @@
 {
   "extends": "react-app",
   "rules": {
-    "no-console": [
-      "error",
-      {
-        "allow": [
-          "error"
-        ]
-      }
-    ],
+    // "no-console": [
+    //   "error",
+    //   {
+    //     "allow": [
+    //       "error"
+    //     ]
+    //   }
+    // ],
     "array-callback-return": "error",
     "curly": "error",
     "eqeqeq": "error",
@@ -38,7 +38,7 @@
       "never"
     ],
     "keyword-spacing": "error",
-    "lines-between-class-members": "error",
+    // "lines-between-class-members": "error",
     "max-len": "error",
     "no-multiple-empty-lines": "error",
     "no-trailing-spaces": "error",

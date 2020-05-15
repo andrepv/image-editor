@@ -1,0 +1,56 @@
+@import "../variables.scss";
+
+@mixin tooltip-triangle {
+  content: "";
+  position: absolute;
+  border-color: transparent $text-color transparent transparent;
+  width: 0;
+  height: 0;
+  border-style: solid;
+}
+
+.tooltip {
+  position: absolute;
+  z-index: 1;
+  background: $text-color;
+  color: #ffffff;
+  padding: 8px 30px;
+  border-radius: 5px;
+  &__triangle {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+  }
+  &_right .tooltip__triangle {
+    border-width: 7.5px 10px 7.5px 0;
+    border-color: transparent $text-color transparent transparent;
+    top: 50%;
+    right: 100%;
+    transform: translateY(-50%);
+  }
+  &_left .tooltip__triangle {
+    border-width: 7.5px 0 7.5px 10px;
+    border-color: transparent transparent transparent $text-color;
+    top: 50%;
+    left: 100%;
+    transform: translateY(-50%);
+  }
+  &_bottom .tooltip__triangle {
+    border-width: 0 7.5px 10px 7.5px;
+    border-color: transparent transparent $text-color transparent;
+    left: 50%;
+    bottom: 100%;
+    transform: translateX(-50%);
+  }
+  &_top .tooltip__triangle {
+    border-width: 10px 7.5px 0 7.5px;
+    border-color: $text-color transparent transparent transparent;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  &__container {
+    position: relative;
+  }
+}

@@ -5,6 +5,7 @@ import { ReactComponent as Draw } from "../assets/pencil.svg";
 import { ReactComponent as Shapes } from "../assets/shapes.svg";
 import { ReactComponent as Text } from "../assets/text.svg";
 import { ReactComponent as Filter } from "../assets/filter.svg";
+import Tooltip from "./Tooltip";
 
 interface IMenuItems {
   icon: React.ReactElement;
@@ -24,9 +25,11 @@ const Menu: React.FC = () => {
     <section className="menu">
       {items.map(item => {
         return (
-          <div className="menu__item">
-            {item.icon}
-          </div>
+          <Tooltip content={item.name} placement="right">
+            <div className="menu__item">
+              {item.icon}
+            </div>
+          </Tooltip>
         );
       })}
     </section>

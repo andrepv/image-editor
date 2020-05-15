@@ -2,11 +2,17 @@
 @import "./components/app";
 @import "./components/header";
 @import "./components/menu";
+@import "./components/tooltip.scss";
 
 body {
   background-color: $main-bg;
+  overflow: hidden;
 }
 
 svg {
   fill: $text-color;
+}
+
+.hidden {
+  visibility: hidden;
 }
