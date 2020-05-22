@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import TooltipPosition from "../helpers/setTooltipPosition";
+import tooltipPosition from "../helpers/setTooltipPosition";
 
 type Props = {
   content: string;
@@ -11,7 +11,6 @@ const TooltipElement: React.FC<Props> = ({content, placement, targetEl}) => {
   const tooltipRef = useRef(null);
   const triangleRef = useRef(null);
 
-  const tooltipPosition = new TooltipPosition();
   const setTooltipPosition = () => {
     tooltipPosition.setTooltipPosition(
       placement,

@@ -1,10 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+
 @import "./variables";
 @import "./components/app";
 @import "./components/header";
 @import "./components/menu";
 @import "./components/tooltip.scss";
+@import "./components/unsplashGallery.scss";
+
+* {
+  box-sizing: border-box;
+}
 
 body {
+  font-family: "Open Sans", sans-serif;
+  font-size: 1rem;
   background-color: $main-bg;
   overflow: hidden;
 }
@@ -13,6 +22,27 @@ svg {
   fill: $text-color;
 }
 
+button {
+  cursor: pointer;
+  background: 0;
+  border: 0;
+  padding: 0;
+  &:focus {
+    outline: none;
+  }
+}
+
 .hidden {
   visibility: hidden;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  background: $border-color;
+  border-radius: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: $text-color;
+  border-radius: 5px;
 }

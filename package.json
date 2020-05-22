@@ -10,14 +10,17 @@
     "@types/node": "^13.13.5",
     "@types/react": "^16.9.34",
     "@types/react-dom": "^16.9.7",
+    "@types/unsplash-js": "^6.0.1",
     "mobx": "^5.15.4",
     "mobx-react": "^6.2.2",
     "node-sass": "^4.14.1",
     "normalize.css": "^8.0.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-photo-gallery": "^8.0.0",
     "react-scripts": "3.4.1",
-    "typescript": "^3.8.3"
+    "typescript": "^3.8.3",
+    "unsplash-js": "^6.0.0"
   },
   "scripts": {
     "start": "react-scripts start",

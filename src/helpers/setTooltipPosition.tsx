@@ -23,7 +23,7 @@ const initialElementData: IElementData = {
   height: 0,
 };
 
-export default class TooltipPosition {
+class TooltipPosition {
   private placement: string = "";
   private tooltipElement: HTMLDivElement | null = null;
   private triangleElement: HTMLDivElement | null = null;
@@ -188,3 +188,6 @@ export default class TooltipPosition {
     };
   }
 }
+
+const tooltipPosition = new TooltipPosition();
+export default tooltipPosition;

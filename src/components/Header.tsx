@@ -3,36 +3,30 @@ import React from "react";
 import { ReactComponent as Refresh } from "../assets/refresh.svg";
 import { ReactComponent as Undo } from "../assets/undo.svg";
 import { ReactComponent as Redo } from "../assets/redo.svg";
-import { ReactComponent as Search } from "../assets/search.svg";
 import { ReactComponent as Upload } from "../assets/upload.svg";
 import { ReactComponent as Save } from "../assets/save.svg";
+import SearchButton from "./SearchButton";
 import Tooltip from "./Tooltip";
 
-interface IHeaderItems {
-  icon: React.ReactElement;
-  name: string;
-}
-
 const Header: React.FC = () => {
-  const items: IHeaderItems[] = [
-    {icon: <Refresh />, name: "Refresh"},
-    {icon: <Undo />, name: "Undo"},
-    {icon: <Redo />, name: "Redo"},
-    {icon: <Search />, name: "Upload an image from Unsplash"},
-    {icon: <Upload />, name: "Upload an image"},
-    {icon: <Save />, name: "Save"},
+  // later, every button will be presented as a separate component
+  const buttons = [
+    <Tooltip content="Refresh" placement="bottom"><Refresh /></Tooltip>,
+    <Tooltip content="Undo" placement="bottom"><Undo /></Tooltip>,
+    <Tooltip content="Redo" placement="bottom"><Redo /></Tooltip>,
+    <SearchButton />,
+    <Tooltip content="Upload an image" placement="bottom"><Upload /></Tooltip>,
+    <Tooltip content="Save" placement="bottom"><Save /></Tooltip>,
   ];
   return (
     <header className="header">
       <div className="header__items">
-        {items.map((item, index) => {
+        {buttons.map((button, index) => {
           return (
-            <React.Fragment>
-              <Tooltip content={item.name} placement="bottom">
-                <div className="header__item">
-                  {item.icon}
-                </div>
-              </Tooltip>
+            <React.Fragment key={index}>
+              <div className="header__item">
+                {button}
+              </div>
               {index === 2 && <div className="separator"></div>}
             </React.Fragment>
           );

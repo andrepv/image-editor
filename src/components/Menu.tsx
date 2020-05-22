@@ -23,9 +23,9 @@ const Menu: React.FC = () => {
   ];
   return (
     <section className="menu">
-      {items.map(item => {
+      {items.map((item, index) => {
         return (
-          <Tooltip content={item.name} placement="right">
+          <Tooltip key={index} content={item.name} placement="right">
             <div className="menu__item">
               {item.icon}
             </div>

@@ -11,14 +11,21 @@ type Props = {
 const Tooltip: React.FC<Props> = ({content, placement, children}) => {
   const targetElRef = useRef(null);
   const [isVisible, toggleVisibility] = useState(false);
+  const [isRemoved, remove] = useState(false);
 
   const show = () => toggleVisibility(true);
   const hide = () => toggleVisibility(false);
   const mouseMoveHandler = (event: React.MouseEvent) => {
     const target = event.target as HTMLElement;
     const isCursorOnTarget = target.closest(".tooltip__container");
-    if (isCursorOnTarget && !isVisible) {
+    if (isCursorOnTarget && !isVisible && !isRemoved) {
       show();
+    }
+  };
+  const clickHandler = () => {
+    if (isVisible) {
+      hide();
+      remove(true);
     }
   };
 
@@ -30,6 +37,7 @@ const Tooltip: React.FC<Props> = ({content, placement, children}) => {
         onMouseEnter={show}
         onMouseLeave={hide}
         onMouseMove={mouseMoveHandler}
+        onClick={clickHandler}
       >
         {children}
       </div>
