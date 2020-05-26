@@ -10,7 +10,10 @@ const SearchButton: React.FC = () => {
   return (
     <>
       <Tooltip content="Upload an image from Unsplash" placement="bottom">
-        <Search onClick={() => toggleGallery(!isGalleryOpen)}/>
+        <Search
+          className="header__search"
+          onClick={() => toggleGallery(!isGalleryOpen)}
+        />
       </Tooltip>
       {isGalleryOpen && <UnsplashGallery close={closeGallery} />}
     </>

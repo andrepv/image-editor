@@ -4,12 +4,14 @@ import Gallery, { PhotoProps, PhotoClickHandler } from "react-photo-gallery";
 import { useUnsplashAPI, Image } from "../helpers/useUnsplashAPI";
 import { ReactComponent as Search } from "../assets/search2.svg";
 import { ReactComponent as Loader } from "../assets/loader.svg";
+import useStore from "../helpers/useStore";
 
 type Props = {
   close: () => void;
 }
 
 const UnsplashGallery: React.FC<Props> = ({close}) => {
+  const { canvasStore } = useStore();
   const [{
     images,
     isLoading,
@@ -35,8 +37,8 @@ const UnsplashGallery: React.FC<Props> = ({close}) => {
   };
 
   const handleImageClick: PhotoClickHandler = (event, photos) => {
-    // temporarily
-    console.log(images[photos.index].regularUrl);
+    canvasStore.setImageUrl(images[photos.index].regularUrl);
+    close();
   };
 
   const galleryPhotoProp: PhotoProps[] = images.map((image: Image) => {
@@ -53,7 +55,6 @@ const UnsplashGallery: React.FC<Props> = ({close}) => {
       document.removeEventListener("click", handleClickOutside);
     };
   });
-
   return (
     <div
       ref={galleryRef}
