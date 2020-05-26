@@ -3,9 +3,9 @@ import React from "react";
 import { ReactComponent as Refresh } from "../assets/refresh.svg";
 import { ReactComponent as Undo } from "../assets/undo.svg";
 import { ReactComponent as Redo } from "../assets/redo.svg";
-import { ReactComponent as Upload } from "../assets/upload.svg";
 import { ReactComponent as Save } from "../assets/save.svg";
 import SearchButton from "./SearchButton";
+import UploadButton from "./UploadButton";
 import Tooltip from "./Tooltip";
 
 const Header: React.FC = () => {
@@ -15,7 +15,7 @@ const Header: React.FC = () => {
     <Tooltip content="Undo" placement="bottom"><Undo /></Tooltip>,
     <Tooltip content="Redo" placement="bottom"><Redo /></Tooltip>,
     <SearchButton />,
-    <Tooltip content="Upload an image" placement="bottom"><Upload /></Tooltip>,
+    <UploadButton />,
     <Tooltip content="Save" placement="bottom"><Save /></Tooltip>,
   ];
   return (

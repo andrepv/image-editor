@@ -24,6 +24,9 @@
       height: 22px;
     }
   }
+  &__upload-image-input {
+    display: none;
+  }
   .separator {
     width: 2px;
     background: $border-color;
