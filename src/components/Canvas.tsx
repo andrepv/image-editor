@@ -1,37 +1,46 @@
-import React, { useRef } from "react";
-import { useObserver } from "mobx-react";
+import React, { useRef, useEffect } from "react";
 import useStore from "../helpers/useStore";
-import { CanvasStore } from "../stores/canvasStrore";
+import { autorun } from "mobx";
 
 const Canvas = () => {
   const { canvasStore } = useStore();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(
+    () =>
+      autorun(() => {
+        if (canvasRef && canvasRef.current) {
+          const { imageUrl } = canvasStore;
+          const canvasEl = canvasRef.current;
+          const ctx = canvasEl.getContext("2d");
+          drawImage(imageUrl, ctx, canvasEl);
+          if (!canvasStore.canvasElement) {
+            canvasStore.setCanvasElement(canvasEl);
+          }
+        }
+      }),
+    [],
+  );
 
-  if (canvasRef && canvasRef.current) {
-    const canvasEl = canvasRef.current;
-    const ctx = canvasEl.getContext("2d");
-    drawImage(canvasStore, ctx, canvasEl);
-  }
 
-  return useObserver(() => (
+  return (
     <section className="canvas">
-      <div style={{display: "none"}}>{canvasStore.imageUrl}</div>
       <canvas
         ref={canvasRef}
         width={`${0.4 * window.innerWidth || 500}`}
         height={`${0.9 * window.innerHeight || 500}`}
       ></canvas>
     </section>
-  ));
+  );
 };
 
 function drawImage(
-  canvasStore: CanvasStore,
+  imageUrl: string,
   ctx: CanvasRenderingContext2D | null,
   canvasEl: HTMLCanvasElement,
 ) {
   const img = new Image();
-  if (canvasStore.imageUrl && ctx) {
+  img.setAttribute("crossorigin", "anonymous");
+  if (imageUrl && ctx) {
     const canvasWidth = canvasEl.offsetWidth;
     const canvasHeight = canvasEl.offsetHeight;
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -46,7 +55,7 @@ function drawImage(
       );
     }, false);
   }
-  img.src = canvasStore.imageUrl;
+  img.src = imageUrl;
 }
 
 function getImageSize(img: HTMLImageElement, containerHeight: number) {
