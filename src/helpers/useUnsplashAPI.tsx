@@ -88,7 +88,7 @@ export const useUnsplashAPI = ():
         dispatch({type: "pending"});
 
         const response = await unsplash.search.photos(
-          keyword, currentPage, 10, {orientation: "portrait"},
+          keyword, currentPage, 10,
         );
         const data = await toJson(response);
         const images: Image[] = data.results.map((item: any) => {
