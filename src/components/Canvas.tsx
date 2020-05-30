@@ -7,46 +7,46 @@ import { ReactComponent as Minus } from "../assets/minus.svg";
 import Tooltip from "./Tooltip";
 
 const Canvas = () => {
-  const { canvasStore } = useStore();
+  const { canvasStore: store } = useStore();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasEl = canvasRef.current;
+
+  const onWheelHandler = (event: WheelEvent) => {
+    event.preventDefault();
+    if (!store.imageUrl) {
+      return;
+    }
+    if (event.deltaY > 0) {
+      store.increaseScale();
+    } else {
+      store.decreaseScale();
+    }
+  };
 
   useEffect(() => {
-    const canvasEl = canvasRef.current;
     if (!canvasEl) {
       return;
     }
-
-    canvasStore.setCanvasElement(canvasEl);
-    const ctx = canvasEl.getContext("2d");
-
-    autorun(() => {
-      const { imageUrl, scale} = canvasStore;
-      drawImage(imageUrl, ctx, canvasEl, scale);
-    });
-  }, []);
-
-  const zoomIn = () => {
-    const scale = Math.min(canvasStore.scale + 0.1, 2);
-    canvasStore.changeScale(scale);
-  };
-
-  const zoomOut = () => {
-    const scale = Math.max(canvasStore.scale - 0.1, 0.3);
-    canvasStore.changeScale(scale);
-  };
+    store.setCanvasElement(canvasEl);
+    canvasEl.addEventListener("wheel", onWheelHandler);
+    autorun(() => drawImage(store.imageUrl, canvasEl, store.scale));
+    return () => {
+      canvasEl.removeEventListener("wheel", onWheelHandler);
+    };
+  }, [canvasEl]);
 
   return useObserver(() => (
-    <section className="canvas">
+    <section className="canvas custom-scrollbar">
       <canvas ref={canvasRef}></canvas>
-      {canvasStore.imageUrl && (
+      {store.imageUrl && (
       <div className="zoom">
-        <button className="zoom-in" onClick={zoomIn}>
+        <button className="zoom-in" onClick={() => store.increaseScale()}>
           <Tooltip content="Zoom In" placement="top">
             <Plus/>
           </Tooltip>
         </button>
-        <p>{`${Math.floor(canvasStore.scale * 100)}%`}</p>
-        <button className="zoom-out" onClick={zoomOut}>
+        <p>{`${Math.floor(store.scale * 100)}%`}</p>
+        <button className="zoom-out" onClick={() => store.decreaseScale()}>
           <Tooltip content="Zoom Out" placement="top">
             <Minus />
           </Tooltip>
@@ -59,11 +59,11 @@ const Canvas = () => {
 
 function drawImage(
   imageUrl: string,
-  ctx: CanvasRenderingContext2D | null,
   canvasEl: HTMLCanvasElement,
   scale: number,
 ) {
   const img = new Image();
+  const ctx = canvasEl.getContext("2d");
   img.setAttribute("crossorigin", "anonymous");
   if (imageUrl && ctx) {
     const parent = canvasEl.parentNode as HTMLElement;

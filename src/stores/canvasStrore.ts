@@ -7,11 +7,21 @@ export class CanvasStore {
 
   @action setImageUrl(url: string) {
     this.imageUrl = url;
-    this.changeScale(1);
+    this.scale = 1;
   }
 
-  @action changeScale(value: number) {
-    this.scale = Number(value.toFixed(1));
+  @action increaseScale() {
+    if (this.scale >= 2) {
+      return;
+    }
+    this.scale += 0.1;
+  }
+
+  @action decreaseScale() {
+    if (this.scale <= 0.5) {
+      return;
+    }
+    this.scale -= 0.1;
   }
 
   setCanvasElement(element: HTMLCanvasElement) {

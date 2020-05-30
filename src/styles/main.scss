@@ -39,6 +39,7 @@ button {
 
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
   background: $border-color;
   border-radius: 5px;
 }
