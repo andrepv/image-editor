@@ -2,7 +2,7 @@ import React from "react";
 import { shallow, mount } from "enzyme";
 import Tooltip from "../components/Tooltip";
 import TooltipElement from "../components/TooltipElement";
-import TooltipPosition from "../helpers/setTooltipPosition";
+import { TooltipPosition } from "../helpers/setTooltipPosition";
 
 describe("<Tooltip />", () => {
   const props = {

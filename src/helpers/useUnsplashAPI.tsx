@@ -3,8 +3,7 @@ import Unsplash, { toJson } from "unsplash-js";
 import { accessKey } from "../appConstants";
 
 export type Image = {
-  thumbUrl: string;
-  regularUrl: string;
+  url: string;
   width: number;
   height: number;
 }
@@ -55,15 +54,13 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-export const useUnsplashAPI = ():
-  [
-    State & {currentPage: number},
-    {
-      loadImages: (inputValue: string) => void;
-      goToNextPage: () => void;
-      goToPrevPage: () => void;
-    }
-  ] => {
+const useUnsplashAPI = ():
+  State & {
+    currentPage: number,
+    loadImages: (inputValue: string) => void,
+    goToNextPage: () => void,
+    goToPrevPage: () => void
+  } => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [keyword, setKeyword] = useState("beach");
   const [currentPage, goToPage] = useState(1);
@@ -93,7 +90,6 @@ export const useUnsplashAPI = ():
         const data = await toJson(response);
         const images: Image[] = data.results.map((item: any) => {
           return {
-            thumbUrl: item.urls.thumb,
             regularUrl: item.urls.regular,
             width: item.width,
             height: item.height,
@@ -114,12 +110,13 @@ export const useUnsplashAPI = ():
       fetchData();
     }
   }, [keyword, currentPage]);
-  return [{
+  return {
     ...state,
     currentPage,
-  }, {
     loadImages,
     goToNextPage,
     goToPrevPage,
-  }];
+  };
 };
+
+export default useUnsplashAPI;
