@@ -2,9 +2,6 @@ import React, { useRef, useEffect } from "react";
 import useStore from "../helpers/useStore";
 import { autorun } from "mobx";
 import { useObserver } from "mobx-react";
-import { ReactComponent as Plus } from "../assets/plus.svg";
-import { ReactComponent as Minus } from "../assets/minus.svg";
-import Tooltip from "./Tooltip";
 
 const Canvas = () => {
   const { canvasStore: store } = useStore();
@@ -36,23 +33,8 @@ const Canvas = () => {
   }, [canvasEl]);
 
   return useObserver(() => (
-    <section className="canvas custom-scrollbar">
+    <section className="canvas">
       <canvas ref={canvasRef}></canvas>
-      {store.imageUrl && (
-      <div className="zoom">
-        <button className="zoom-in" onClick={() => store.increaseScale()}>
-          <Tooltip content="Zoom In" placement="top">
-            <Plus/>
-          </Tooltip>
-        </button>
-        <p>{`${Math.floor(store.scale * 100)}%`}</p>
-        <button className="zoom-out" onClick={() => store.decreaseScale()}>
-          <Tooltip content="Zoom Out" placement="top">
-            <Minus />
-          </Tooltip>
-        </button>
-      </div>
-      )}
     </section>
   ));
 };
@@ -69,9 +51,14 @@ function drawImage(
     const parent = canvasEl.parentNode as HTMLElement;
     img.addEventListener("load", () => {
       const { width, height } = getImageSize(img, scale);
-      const isInCenter = isScrollbarInCenter(
+      const shouldScrollDown = shouldMoveVerticalScrollbar(
         parent.scrollTop,
         canvasEl.offsetHeight,
+      );
+      const shouldScrollRight = shouldMoveHorizontalScrollbar(
+        parent.scrollLeft,
+        canvasEl.offsetWidth,
+        parent.offsetWidth,
       );
 
       canvasEl.width = width;
@@ -79,20 +66,41 @@ function drawImage(
 
       ctx.drawImage(img, 0, 0, width, height);
 
-      if (isInCenter) {
-        const shift = canvasEl.offsetHeight / 2 - window.innerHeight / 2;
-        parent.scrollTo(0, shift);
+      if (shouldScrollRight) {
+        const shiftX = canvasEl.offsetWidth / 2 - parent.offsetWidth / 2;
+        parent.scrollTo(shiftX, parent.scrollTop);
+      }
+      if (shouldScrollDown) {
+        const shiftY = canvasEl.offsetHeight / 2 - window.innerHeight / 2;
+        parent.scrollTo(parent.scrollLeft, shiftY);
       }
     }, false);
   }
   img.src = imageUrl;
 }
 
-function isScrollbarInCenter(scrollTop: number, containerHeight: number) {
+function shouldMoveVerticalScrollbar(
+  scrollTop: number,
+  containerHeight: number,
+) {
   const currentPosition = Math.floor(scrollTop);
   const scrollbarCenterPosition = Math.floor(
     Math.max(
       containerHeight / 2 - window.innerHeight / 2, 0,
+    ),
+  );
+  return scrollbarCenterPosition === currentPosition;
+}
+
+function shouldMoveHorizontalScrollbar(
+  scrollLeft: number,
+  canvasWidth: number,
+  canvasContainerWidth: number,
+) {
+  const currentPosition = Math.floor(scrollLeft);
+  const scrollbarCenterPosition = Math.floor(
+    Math.max(
+      canvasWidth / 2 - canvasContainerWidth / 2, 0,
     ),
   );
   return scrollbarCenterPosition === currentPosition;

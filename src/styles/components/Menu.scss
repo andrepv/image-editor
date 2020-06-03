@@ -16,5 +16,8 @@
       background: $toolbar-bg;
       transition-duration: .3s;
     }
+    &_active {
+      background-color: $toolbar-bg;
+    }
   }
 }

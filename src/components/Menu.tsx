@@ -6,34 +6,55 @@ import { ReactComponent as Shapes } from "../assets/shapes.svg";
 import { ReactComponent as Text } from "../assets/text.svg";
 import { ReactComponent as Filter } from "../assets/filter.svg";
 import Tooltip from "./Tooltip";
+import useStore from "../helpers/useStore";
+import { useObserver } from "mobx-react";
 
 interface IMenuItems {
   icon: React.ReactElement;
   name: string;
+  handler: () => void;
 }
 
 const Menu: React.FC = () => {
+  const { toolbarStore, canvasStore } = useStore();
   const items: IMenuItems[] = [
-    {icon: <Crop />, name: "Crop"},
-    {icon: <Flip />, name: "Flip"},
-    {icon: <Draw />, name: "Draw"},
-    {icon: <Shapes />, name: "Shapes"},
-    {icon: <Text />, name: "Text"},
-    {icon: <Filter />, name: "Filter"},
+    {
+      icon: <Crop />,
+      name: "Crop",
+      handler: () => toolbarStore.toggle("Crop"),
+    },
+    {
+      icon: <Flip />,
+      name: "Rotate",
+      handler: () => toolbarStore.toggle("Rotate"),
+    },
+    {icon: <Draw />, name: "Draw", handler: () => {}},
+    {icon: <Shapes />, name: "Shapes", handler: () => {}},
+    {icon: <Text />, name: "Text", handler: () => {}},
+    {icon: <Filter />, name: "Filter", handler: () => {}},
   ];
-  return (
+  return useObserver(() => (
     <section className="menu">
       {items.map((item, index) => {
         return (
           <Tooltip key={index} content={item.name} placement="right">
-            <div className="menu__item">
+            <div
+              className={`menu__item ${
+                toolbarStore.type === item.name ? "menu__item_active" : ""
+              }`}
+              onClick={() => {
+                if (canvasStore.imageUrl) {
+                  item.handler();
+                }
+              }}
+            >
               {item.icon}
             </div>
           </Tooltip>
         );
       })}
     </section>
-  );
+  ));
 };
 
 export default Menu;

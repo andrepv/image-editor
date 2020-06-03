@@ -1,16 +1,34 @@
 import React from "react";
+import { useObserver } from "mobx-react";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
+
 import Menu from "./components/Menu";
 import Header from "./components/Header";
 import Canvas from "./components/Canvas";
+import Toolbar from "./components/Toolbar";
+import ZoomControl from "./components/ZoomControl";
+import useStore from "./helpers/useStore";
 
 const App: React.FC = () => {
-  return (
-    <div className="app">
+  const { toolbarStore } = useStore();
+  return useObserver(() => (
+    <div className={`app ${toolbarStore.isOpen ? "toolbar_open": ""}`}>
       <Header />
       <Menu />
-      <Canvas />
+      <TransitionGroup component={null}>
+        {toolbarStore.isOpen && (
+          <CSSTransition
+            timeout={600}
+            classNames="toolbar"
+          >
+            <Toolbar/>
+          </CSSTransition>
+        )}
+        <Canvas />
+      </TransitionGroup>
+      <ZoomControl />
     </div>
-  );
+  ));
 };
 
 export default App;

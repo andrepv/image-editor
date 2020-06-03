@@ -90,7 +90,7 @@ const useUnsplashAPI = ():
         const data = await toJson(response);
         const images: Image[] = data.results.map((item: any) => {
           return {
-            regularUrl: item.urls.regular,
+            url: item.urls.regular,
             width: item.width,
             height: item.height,
           };

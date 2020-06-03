@@ -1,0 +1,23 @@
+.toolbar {
+  grid-row-start: 1;
+  grid-row-end: 3;
+  grid-column-start: 2;
+  grid-column-end: 4;
+  margin-left: -25px;
+  background: $toolbar-bg;
+  z-index: -1;
+  &-enter {
+    transform: translateX(-200%);
+  }
+  &-enter-active {
+    transition: all 600ms ease-in-out;
+    transform: translateX(0);
+  }
+  &-exit {
+    transform: translateX(0);
+  }
+  &-exit-active {
+    transform: translateX(-200%);
+    transition: all 600ms ease-in-out;
+  }
+}
