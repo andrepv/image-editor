@@ -5,7 +5,7 @@
   grid-column-end: 4;
   margin-left: -25px;
   background: $toolbar-bg;
-  z-index: -1;
+  padding: 43px 25px 0;
   &-enter {
     transform: translateX(-200%);
   }
@@ -19,5 +19,31 @@
   &-exit-active {
     transform: translateX(-200%);
     transition: all 600ms ease-in-out;
+  }
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    svg {
+      width: 13px;
+      height: 13px;
+      cursor: pointer;
+    }
+  }
+  &__form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  &__label {
+    margin: 0;
+    align-self: center;
+  }
+  &__input {
+    width: 40px;
+    justify-self: end;
+    background: transparent;
+    border: 2px solid $border-color;
   }
 }

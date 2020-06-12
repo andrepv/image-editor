@@ -5,7 +5,7 @@ export interface ICoords {
   bottom: number;
 }
 
-export function getCoords(element: HTMLDivElement): ICoords {
+export function getCoords(element: HTMLElement): ICoords {
   const rect = element.getBoundingClientRect();
   const scrollLeft = (
     window.pageXOffset || document.documentElement.scrollLeft

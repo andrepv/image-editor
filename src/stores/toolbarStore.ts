@@ -11,6 +11,11 @@ export class ToolbarStore {
     this.toggleType(type);
   }
 
+  @action close() {
+    this.isOpen = false;
+    this.type = "";
+  }
+
   toggleType(type: string) {
     if (this.type === type) {
       this.type = "";

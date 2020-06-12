@@ -4,6 +4,7 @@
   grid-row-start: 1;
   grid-row-end: 3;
   background-color: $menu-bg;
+  z-index: 2;
   &__item {
     padding: 24px;
     cursor: pointer;
