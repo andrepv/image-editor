@@ -41,9 +41,32 @@
     align-self: center;
   }
   &__input {
-    width: 40px;
+    width: 100%;
     justify-self: end;
     background: transparent;
     border: 2px solid $border-color;
+  }
+
+  &__options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 15px;
+    row-gap: 25px;
+  }
+
+  &__option {
+    text-align: center;
+    cursor: pointer;
+    &_active {
+      border: 1px solid;
+    }
+    &-title {
+      margin: 0;
+      margin-top: 16px;
+      font-weight: 600;
+    }
+    svg {
+      width: 80%;
+    }
   }
 }

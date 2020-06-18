@@ -1,39 +1,90 @@
 import CanvasAPI from "./CanvasAPI";
 import { fabric } from "fabric";
+import cropperStore, { Ratio } from "../stores/cropperStore";
+import { autorun } from "mobx";
+
+type ResizeInfo = {
+  width: number,
+  height: number,
+  x: number,
+  y: number,
+}
 
 export default class CropZone {
-  private object: fabric.Object | null = null;
   private width: number = 0;
   private height: number = 0;
   private left: number = 0;
   private top: number = 0;
   private isFocused: boolean = false;
-  private canvasAPI: CanvasAPI;
+  private object: fabric.Object | null = null;
+  private aspectRatio: Ratio = cropperStore.ratio;
+  private readonly canvasAPI: CanvasAPI;
 
-  private readonly MAX_WIDTH: number = 40;
-  private readonly MAX_HEIGHT: number = 40;
   private readonly FRAME_WIDTH: number = 3;
-  private readonly FRAME_COLOR: string = "rgba(0, 0, 0, 0.3)";
   private readonly FRAME_CORNERS_SIZE: number = 20;
-  private readonly GRID_LINES_COLOR: string = "rgba(255, 255, 255, 0.6)";
-  private readonly GRID_LINES_WIDTH: number = 2;
 
   constructor(canvasAPI: CanvasAPI) {
     this.canvasAPI = canvasAPI;
   }
 
   public initialize(): void {
-    this.left = 0;
-    this.top = 0;
-    this.width = this.canvasAPI.canvasSize.width;
-    this.height = this.canvasAPI.canvasSize.height;
+    const {width, height} = this.canvasAPI.canvasSize;
+    this.setInitialSize();
+    this.setLeft(width / 2 - this.width / 2);
+    this.setTop(height / 2 - this.height / 2);
+    // cropperStore.setCanvasSize(width, height);
+    // this.setWidth(Math.min(width, height));
+    // this.setHeight(Math.min(width, height));
     this.toggleFocus(true);
+  }
+
+  private setInitialSize(): void {
+    const {canvasSize} = this.canvasAPI;
+    let width = canvasSize.width;
+    let height = canvasSize.height;
+    if (this.aspectRatio) {
+      const size = this.convertAspectRatioToActualSize(
+        canvasSize.width,
+        canvasSize.height,
+      );
+      if (size) {
+        width = size.width;
+        height = size.height;
+      }
+    }
+    this.setWidth(width);
+    this.setHeight(height);
+  }
+
+  private convertAspectRatioToActualSize(
+    containerWidth: number,
+    containerHeight: number,
+  ): Ratio {
+    if (!this.aspectRatio) {
+      return null;
+    }
+    const height = Math.min(
+      this.aspectRatio.height * containerWidth / this.aspectRatio.width,
+      containerHeight,
+    );
+    const width = Math.min(
+      this.aspectRatio.width / this.aspectRatio.height * containerHeight,
+      containerWidth,
+    );
+    return {width, height};
+  }
+
+  public destroy(): void {
+    if (this.object) {
+      this.canvasAPI.canvas.remove(this.object);
+      this.object = null;
+    }
   }
 
   public toggleFocus(value: boolean): void {
     this.isFocused = value;
     this.render();
-  };
+  }
 
   public move(left: number, top: number): void {
     this.moveLeft(left);
@@ -47,7 +98,7 @@ export default class CropZone {
     if (value + this.width > canvasSize.width) {
       left = canvasSize.width - this.width;
     }
-    this.left = left;
+    this.setLeft(left);
   }
 
   public moveTop(value: number): void {
@@ -56,26 +107,156 @@ export default class CropZone {
     if (value + this.height > canvasSize.height) {
       top = canvasSize.height - this.height;
     }
-    this.top = top;
+    this.setTop(top);
   }
 
-  public resize(values: {
-    width: number,
-    height: number,
-    x: number,
-    y: number,
-  }): void {
-    const {width, height, x, y} = values;
-    if (width > this.MAX_WIDTH) {
-      this.left = x;
-      this.width = width;
+  private getMinSize(): {minWidth: number, minHeight: number} {
+    let minWidth = 40;
+    let minHeight = 40;
+    if (this.aspectRatio) {
+      const minSize = this.convertAspectRatioToActualSize(
+        minWidth,
+        minHeight,
+      );
+      if (minSize) {
+        minWidth = minSize.width;
+        minHeight = minSize.height;
+      }
     }
-    if (height > this.MAX_HEIGHT) {
-      this.top = y;
-      this.height = height;
-    }
+    return {minWidth, minHeight};
+  }
+
+  public resize(resizeInfo: ResizeInfo, corner: string): void {
+    const adjustedResizeInfo = this.adjustResizeInfoWithAspectRatio(
+      resizeInfo,
+      corner,
+    );
+    const {x, y, width, height} = this.adjustResizeInfoWithMinValues(
+      adjustedResizeInfo,
+      corner,
+    );
+
+    this.setWidth(width);
+    this.setHeight(height);
+    this.setTop(y);
+    this.setLeft(x);
+
     this.render();
   }
+
+  private adjustResizeInfoWithAspectRatio(
+    resizeInfo: ResizeInfo,
+    corner: string,
+  ): ResizeInfo {
+    if (!this.aspectRatio) {
+      return resizeInfo;
+    }
+    let {width, height, x, y} = resizeInfo;
+    const {canvasSize} = this.canvasAPI;
+    const aspectRatioValue = this.aspectRatio.width / this.aspectRatio.height;
+
+    if (corner !== "mt" && corner !== "mb") {
+      height = width / aspectRatioValue;
+    }
+    if (corner === "mt" || corner === "mb") {
+      width = aspectRatioValue * height;
+    }
+    if (corner === "tl" || corner === "tr") {
+      y = this.top + (this.height - height);
+    }
+    if (corner === "br" || corner === "bl") {
+      y = this.top;
+    }
+
+    if (x + width > canvasSize.width) {
+      width = width - (x + width - canvasSize.width);
+      height = width / aspectRatioValue;
+      x = canvasSize.width - width;
+      if (corner === "mt") {
+        y = this.top + (this.height - height);
+      }
+    }
+    if (y < 0) {
+      height = height + y;
+      width = aspectRatioValue * height;
+      y = 0;
+      if (corner === "tl") {
+        x = this.left + (this.width - width);
+      }
+    }
+    if (y + height > canvasSize.height) {
+      height = height - (y + height - canvasSize.height);
+      width = aspectRatioValue * height;
+      y = canvasSize.height - height;
+      if (corner === "bl" || corner === "ml") {
+        x = this.left + (this.width - width);
+      }
+    }
+    return {width, height, x, y};
+  }
+
+  private adjustResizeInfoWithMinValues(
+    values: ResizeInfo,
+    corner: string,
+  ): ResizeInfo {
+    const {minWidth, minHeight} = this.getMinSize();
+    let x = values.x;
+    let y = values.y;
+    const width = Math.max(values.width, minWidth);
+    const height = Math.max(values.height, minHeight);
+    if (values.width < minWidth) {
+      x = this.left;
+      if (corner === "ml" || corner === "tl" || corner === "bl") {
+        x = this.left + (this.width - width);
+      }
+    }
+    if (values.height < minHeight) {
+      y = this.top;
+      if (corner === "mt" || corner === "tr" || corner === "tl") {
+        y = this.top + (this.height - height);
+      }
+    }
+    return {x, y, width, height};
+  }
+
+  private setWidth(value: number): void {
+    this.width = value;
+    cropperStore.changeCropZoneWidth(value);
+  }
+
+  private setHeight(value: number): void {
+    this.height = value;
+    cropperStore.changeCropZoneHeight(value);
+  }
+
+  private setLeft(value: number): void {
+    this.left = value;
+    // cropperStore.left = value;
+  }
+
+  private setTop(value: number): void {
+    this.top = value;
+    // cropperStore.top = value;
+  }
+
+  // private updateWidth = autorun(() => {
+  //   if (this.width !== cropperStore.cropZoneWidth) {
+  //     this.width = cropperStore.cropZoneWidth;
+  //     this.render();
+  //   }
+  // });
+
+  // private updateHeight = autorun(() => {
+  //   if (this.height !== cropperStore.cropZoneHeight) {
+  //     this.height = cropperStore.cropZoneHeight;
+  //     this.render();
+  //   }
+  // });
+
+  private updateRatio = autorun(() => {
+    this.aspectRatio = cropperStore.ratio;
+    this.initialize();
+  });
 
   private render(): void {
     if (this.object) {
@@ -117,8 +298,8 @@ export default class CropZone {
 
   private drawGrid(): fabric.Group {
     const lineOptions = {
-      stroke: this.GRID_LINES_COLOR,
-      strokeWidth: this.GRID_LINES_WIDTH,
+      stroke: "rgba(255, 255, 255, 0.6)",
+      strokeWidth: 2,
       selectable: false,
     };
     const horizontalLines = this.drawHorizontalLines(lineOptions);
@@ -157,7 +338,7 @@ export default class CropZone {
       width: this.width - this.FRAME_WIDTH,
       height: this.height - this.FRAME_WIDTH,
       strokeWidth: this.FRAME_WIDTH,
-      stroke: this.FRAME_COLOR,
+      stroke: "rgba(0, 0, 0, 0.3)",
       selectable: false,
       fill: "transparent",
       left: this.left,

@@ -8,7 +8,7 @@ import { useObserver } from "mobx-react";
 
 const ZoomControl: React.FC = () => {
   const { canvasStore } = useStore();
-  return useObserver(() => canvasStore.imageUrl ? (
+  return useObserver(() => (canvasStore.imageUrl && !canvasStore.mode) ? (
     <div className="zoom">
       <button className="zoom-in" onClick={() => {
         canvasStore.increaseScale();

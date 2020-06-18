@@ -21,7 +21,10 @@ const Menu: React.FC = () => {
     {
       icon: <Crop />,
       name: "Crop",
-      handler: () => toolbarStore.toggle("Crop"),
+      handler: () => {
+        toolbarStore.toggle("Crop");
+        canvasStore.setMode("crop");
+      },
     },
     {
       icon: <Flip />,

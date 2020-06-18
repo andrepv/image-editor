@@ -19,12 +19,20 @@ interface IEventTransform {
 }
 
 export default class Cropper {
-  private canvasAPI: CanvasAPI;
-  private cropZone: CropZone;
+  private overlay: fabric.Object | null = null;
+  private readonly canvasAPI: CanvasAPI;
+  private readonly cropZone: CropZone;
+  private readonly listeners: any;
 
   constructor(canvasAPI: CanvasAPI) {
     this.canvasAPI = canvasAPI;
     this.cropZone = new CropZone(canvasAPI);
+    this.listeners = {
+      onMouseDown: this.handleMouseDown.bind(this),
+      onMouseUp: this.handleMouseUp.bind(this),
+      onObjectMoving: this.handleObjectMoving.bind(this),
+      onObjectScaling: this.handleObjectScaling.bind(this),
+    };
   }
 
   public initialize(): void {
@@ -33,12 +41,26 @@ export default class Cropper {
     this.cropZone.initialize();
   }
 
+  public destroy() {
+    this.removeEventListeners();
+    this.removeOverlay();
+    this.cropZone.destroy();
+  }
+
   private addEventListeners(): void {
     const { canvas } = this.canvasAPI;
-    canvas.on("mouse:down", this.handleMouseDown.bind(this));
-    canvas.on("mouse:up", this.handleMouseUp.bind(this));
-    canvas.on("object:moving", this.handleObjectMoving.bind(this));
-    canvas.on("object:scaling", this.handleScaling.bind(this));
+    canvas.on("mouse:down", this.listeners.onMouseDown);
+    canvas.on("mouse:up", this.listeners.onMouseUp);
+    canvas.on("object:moving", this.listeners.onObjectMoving);
+    canvas.on("object:scaling", this.listeners.onObjectScaling);
+  }
+
+  private removeEventListeners(): void {
+    const { canvas } = this.canvasAPI;
+    canvas.off("mouse:down", this.listeners.onMouseDown);
+    canvas.off("mouse:up", this.listeners.onMouseUp);
+    canvas.off("object:moving", this.listeners.onObjectMoving);
+    canvas.off("object:scaling", this.listeners.onObjectScaling);
   }
 
   private handleMouseDown(event: fabric.IEvent): void {
@@ -56,7 +78,6 @@ export default class Cropper {
     if (event?.target?.name !== "cropzone") {
       return;
     }
-
     const {
       startX,
       startY,
@@ -75,7 +96,7 @@ export default class Cropper {
     this.cropZone.move(endLeft, endTop);
   }
 
-  private handleScaling(event: fabric.IEvent): void {
+  private handleObjectScaling(event: fabric.IEvent): void {
     if (event?.target?.name !=="cropzone") {
       return;
     }
@@ -144,13 +165,13 @@ export default class Cropper {
         y: endTop,
       },
     };
-    this.cropZone.resize(resizeData[corner]);
+    this.cropZone.resize(resizeData[corner], corner);
   }
 
   private getScalingEventData(event: fabric.IEvent) {
     const transform = event.transform as IEventTransform;
-    const {x: endX, y: endY} = this.getScalingPointer(event.pointer);
     const {corner, target, original} = transform;
+    const {x: endX, y: endY} = this.getScalingPointer(event.pointer);
     const {
       left: startLeft,
       top: startTop,
@@ -204,7 +225,7 @@ export default class Cropper {
   }
 
   private addOverlay(): void {
-    const overlay = new fabric.Rect({
+    this.overlay = new fabric.Rect({
       name: "overlay",
       fill: "rgba(0, 0, 0, 0.5)",
       selectable: false,
@@ -212,6 +233,12 @@ export default class Cropper {
       width: this.canvasAPI.canvasSize.width,
       height: this.canvasAPI.canvasSize.height,
     });
-    this.canvasAPI.canvas.add(overlay);
+    this.canvasAPI.canvas.add(this.overlay);
+  }
+
+  private removeOverlay(): void {
+    if (this.overlay) {
+      this.canvasAPI.canvas.remove(this.overlay);
+    }
   }
 }

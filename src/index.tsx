@@ -7,11 +7,13 @@ import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import canvasStore from "./stores/canvasStrore";
 import toolbarStore from "./stores/toolbarStore";
+import cropperStore from "./stores/cropperStore";
 import { StoreProvider } from "./helpers/storeProvider";
 
 const stores = {
   canvasStore,
   toolbarStore,
+  cropperStore,
 };
 
 ReactDOM.render(

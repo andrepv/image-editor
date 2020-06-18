@@ -10,15 +10,33 @@ const Canvas = () => {
   const { canvasStore: store } = useStore();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const canvasEl = canvasRef.current;
+  const onWheel = (event: any) => {
+    event.preventDefault();
+    if (!store.imageUrl || store.mode) {
+      return;
+    }
+    if (event.deltaY > 0) {
+      store.increaseScale();
+    } else {
+      store.decreaseScale();
+    }
+  };
 
   useEffect(() => {
     if (!canvasEl) {
       return;
     }
-    let fabricCanvas = new fabric.Canvas(canvasEl);
-    const canvas = new CanvasAPI(fabricCanvas);
+    const fabricCanvas = new fabric.Canvas(canvasEl);
+    const canvasAPI = new CanvasAPI(fabricCanvas);
+    const canvas = canvasEl?.parentElement?.querySelector(".upper-canvas");
     store.setCanvasElement(canvasEl);
-    autorun(() => canvas.renderImage(store.imageUrl, store.scale));
+    canvas && canvas.addEventListener("wheel", onWheel);
+
+    autorun(() => canvasAPI.renderImage(
+      store.imageUrl,
+      store.scale,
+      store.mode,
+    ));
   }, [canvasEl]);
 
   return useObserver(() => (

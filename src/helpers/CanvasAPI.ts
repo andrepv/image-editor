@@ -11,6 +11,7 @@ export default class CanvasAPI {
   public imageElement: HTMLImageElement;
   public canvasSize: CanvasSize = {width: 0, height: 0};
   private cropper: Cropper;
+  private currentMode: string = "";
 
   constructor(canvas: fabric.Canvas) {
     this.canvas = canvas;
@@ -18,9 +19,12 @@ export default class CanvasAPI {
     this.cropper = new Cropper(this);
   }
 
-  public renderImage(imageUrl: string, scale: number): void {
+  public renderImage(imageUrl: string, scale: number, mode: string): void {
+    if (!imageUrl) {
+      return;
+    }
     this.imageElement.src = imageUrl;
-    this.imageElement.addEventListener("load", () => {
+    fabric.Image.fromURL(imageUrl, () => {
       const { width, height } = this.getImageSize(scale);
       this.setCanvasSize(width, height);
 
@@ -33,8 +37,29 @@ export default class CanvasAPI {
       imgInstance.scaleToHeight(height);
       this.canvas.add(imgInstance);
 
-      this.cropper.initialize();
+      if (!mode && this.currentMode) {
+        this.destroyCurrentMode();
+        return;
+      }
+
+      if (mode) {
+        this.initializeMode(mode);
+      }
     });
+  }
+
+  private destroyCurrentMode(): void {
+    if (this.currentMode === "crop") {
+      this.currentMode = "";
+      this.cropper.destroy();
+    }
+  }
+
+  private initializeMode(mode: string): void {
+    if (mode === "crop") {
+      this.cropper.initialize();
+      this.currentMode = mode;
+    }
   }
 
   private getImageSize(scale: number): {
