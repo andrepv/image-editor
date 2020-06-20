@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState, ChangeEvent, useEffect } from "react";
 import { useObserver } from "mobx-react";
 import useStore from "../helpers/useStore";
 import { ReactComponent as Close } from "../assets/close.svg";
 import { ReactComponent as Crop } from "../assets/crop.svg";
+import { autorun } from "mobx";
 
 const Toolbar: React.FC = () => {
   return (
@@ -14,10 +15,22 @@ const Toolbar: React.FC = () => {
 
 const ToolbarCrop: React.FC = () => {
   const { toolbarStore, canvasStore, cropperStore } = useStore();
+  const [width, setWidth] = useState(cropperStore.cropZoneWidth);
+  const [height, setHeight] = useState(cropperStore.cropZoneHeight);
 
   const close = () => {
     toolbarStore.close();
     canvasStore.setMode("");
+  };
+
+  const updateWidth = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(event.target.value, 10);
+    setWidth(value);
+  };
+
+  const updateHeight = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(event.target.value, 10);
+    setHeight(value);
   };
 
   const aspectRatioList = [
@@ -30,6 +43,13 @@ const ToolbarCrop: React.FC = () => {
     {name: "16:9", value: {width: 16, height: 9}},
   ];
 
+  useEffect(() => {
+    autorun(() => {
+      setWidth(cropperStore.widthIndicator);
+      setHeight(cropperStore.heightIndicator);
+    });
+  }, []);
+
   return useObserver(() => (
     <>
     <div className="toolbar__header">
@@ -37,6 +57,26 @@ const ToolbarCrop: React.FC = () => {
         <Close onClick={close}/>
       </div>
       <div className="toolbar__content">
+        <div className="toolbar__form">
+          <p className="toolbar__label">Width</p>
+          <input
+            type="number"
+            className="toolbar__input"
+            value={Math.floor(width)}
+            onChange={updateWidth}
+            onBlur={() => cropperStore.changeCropZoneWidth(width)}
+            min={0}
+          />
+          <p className="toolbar__label">Height</p>
+          <input
+            type="number"
+            className="toolbar__input"
+            value={Math.floor(height)}
+            onChange={updateHeight}
+            onBlur={() => cropperStore.changeCropZoneHeight(height)}
+            min={0}
+          />
+        </div>
         <div className="toolbar__options">
           {aspectRatioList.map((aspectRatio: any, index: number) => {
             return (
