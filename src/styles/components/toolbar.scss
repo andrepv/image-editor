@@ -6,6 +6,8 @@
   margin-left: -25px;
   background: $toolbar-bg;
   padding: 43px 25px 0;
+  overflow-y: auto;
+  height: 100vh;
   &-enter {
     transform: translateX(-200%);
   }
@@ -68,5 +70,11 @@
     svg {
       width: 80%;
     }
+  }
+
+  &__crop-btn {
+    padding: 12px;
+    border: 1px solid;
+    margin: 20px 0 0;
   }
 }

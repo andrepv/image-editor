@@ -321,6 +321,24 @@ export default class CropZone {
     this.initialize();
   });
 
+  private crop = autorun(() => {
+    if (cropperStore.shouldCrop) {
+      const {imageElement, canvasSize} = this.canvasAPI;
+      const ratioX = imageElement.width / canvasSize.width;
+      const ratioY = imageElement.height / canvasSize.height;
+
+      const imageUrl = new fabric.Image(imageElement).toDataURL({
+        left: this.left * ratioX,
+        top: this.top * ratioY,
+        width: this.width * ratioX,
+        height: this.height * ratioY,
+      });
+
+      this.canvasAPI.crop(imageUrl);
+      cropperStore.crop(false);
+    }
+  })
+
   private render(): void {
     if (this.object) {
       this.canvasAPI.canvas.remove(this.object);

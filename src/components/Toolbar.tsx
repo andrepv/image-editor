@@ -24,12 +24,12 @@ const ToolbarCrop: React.FC = () => {
   };
 
   const updateWidth = (event: ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(event.target.value, 10);
+    const value = parseInt(event.target.value, 10) || width;
     setWidth(value);
   };
 
   const updateHeight = (event: ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(event.target.value, 10);
+    const value = parseInt(event.target.value, 10) || height;
     setHeight(value);
   };
 
@@ -95,6 +95,12 @@ const ToolbarCrop: React.FC = () => {
             );
           })}
         </div>
+        <button
+          className="toolbar__crop-btn"
+          onClick={() => cropperStore.crop(true)}
+        >
+          Crop
+        </button>
       </div>
     </>
   ));

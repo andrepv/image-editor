@@ -1,5 +1,7 @@
 import { fabric } from "fabric";
 import Cropper from "./Cropper";
+import canvasStrore from "../stores/canvasStrore";
+import toolbarStore from "../stores/toolbarStore";
 
 type CanvasSize = {
   width: number;
@@ -32,6 +34,7 @@ export default class CanvasAPI {
       const imgInstance = new fabric.Image(this.imageElement, {
         selectable: false,
         hoverCursor: "default",
+        crossOrigin: "Anonymous",
       });
       imgInstance.scaleToWidth(width);
       imgInstance.scaleToHeight(height);
@@ -46,6 +49,12 @@ export default class CanvasAPI {
         this.initializeMode(mode);
       }
     });
+  }
+
+  public crop(url: string): void {
+    canvasStrore.setMode("");
+    canvasStrore.setImageUrl(url);
+    toolbarStore.close();
   }
 
   private destroyCurrentMode(): void {

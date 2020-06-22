@@ -6,6 +6,7 @@ export type Ratio = {
 } | null;
 
 export class CropperStore {
+  @observable shouldCrop: boolean = false;
   @observable cropZoneWidth: number = 0;
   @observable cropZoneHeight: number = 0;
 
@@ -14,6 +15,11 @@ export class CropperStore {
 
   @observable ratio: Ratio = null;
   @observable ratioName: string = "custom";
+
+  @action
+  public crop(value: boolean): void {
+    this.shouldCrop = value;
+  }
 
   @action
   public setRatio(ratio: {name: string, value: Ratio}): void {
