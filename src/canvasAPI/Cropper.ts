@@ -19,7 +19,6 @@ interface IEventTransform {
 }
 
 export default class Cropper {
-  private overlay: fabric.Object | null = null;
   private readonly canvasAPI: CanvasAPI;
   private readonly cropZone: CropZone;
   private readonly listeners: any;
@@ -37,14 +36,12 @@ export default class Cropper {
 
   public initialize(): void {
     this.addEventListeners();
-    this.addOverlay();
     this.cropZone.initialize();
   }
 
   public destroy() {
     this.removeEventListeners();
-    this.removeOverlay();
-    this.cropZone.destroy();
+    this.cropZone.remove();
   }
 
   private addEventListeners(): void {
@@ -222,23 +219,5 @@ export default class Cropper {
       y = canvasSize.height;
     }
     return {x, y};
-  }
-
-  private addOverlay(): void {
-    this.overlay = new fabric.Rect({
-      name: "overlay",
-      fill: "rgba(0, 0, 0, 0.5)",
-      selectable: false,
-      hoverCursor: "default",
-      width: this.canvasAPI.canvasSize.width,
-      height: this.canvasAPI.canvasSize.height,
-    });
-    this.canvasAPI.canvas.add(this.overlay);
-  }
-
-  private removeOverlay(): void {
-    if (this.overlay) {
-      this.canvasAPI.canvas.remove(this.overlay);
-    }
   }
 }

@@ -11,7 +11,7 @@ type Props = {
 }
 
 const UnsplashGallery: React.FC<Props> = ({close}) => {
-  const { canvasStore } = useStore();
+  const { imageStore } = useStore();
   const {
     images,
     isLoading,
@@ -36,7 +36,7 @@ const UnsplashGallery: React.FC<Props> = ({close}) => {
   };
 
   const handleImageClick: PhotoClickHandler = (event, photos) => {
-    canvasStore.setImageUrl(images[photos.index].url);
+    imageStore.setUrl(images[photos.index].url);
     close();
   };
 

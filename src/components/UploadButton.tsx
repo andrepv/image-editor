@@ -6,7 +6,7 @@ import useStore from "../helpers/useStore";
 
 const UploadButton = () => {
   const inputFileRef = useRef<HTMLInputElement>(null);
-  const { canvasStore } = useStore();
+  const { imageStore } = useStore();
 
   const uploadImage = (event: ChangeEvent<HTMLInputElement>) => {
     const target = event.target as HTMLInputElement;
@@ -18,7 +18,7 @@ const UploadButton = () => {
 
     const reader = new FileReader();
     reader.onloadend = () => {
-      canvasStore.setImageUrl(String(reader.result));
+      imageStore.setUrl(String(reader.result));
     };
     reader.readAsDataURL(file);
   };

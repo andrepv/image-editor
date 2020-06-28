@@ -5,15 +5,17 @@ import "./styles/main.scss";
 import App from "./App";
 
 import * as serviceWorker from "./serviceWorker";
-import canvasStore from "./stores/canvasStrore";
+import canvasStore from "./stores/canvasStore";
 import toolbarStore from "./stores/toolbarStore";
 import cropperStore from "./stores/cropperStore";
+import imageStore from "./stores/imageStore";
 import { StoreProvider } from "./helpers/storeProvider";
 
 const stores = {
   canvasStore,
   toolbarStore,
   cropperStore,
+  imageStore,
 };
 
 ReactDOM.render(

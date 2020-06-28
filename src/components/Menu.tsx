@@ -16,20 +16,25 @@ interface IMenuItems {
 }
 
 const Menu: React.FC = () => {
-  const { toolbarStore, canvasStore } = useStore();
+  const { toolbarStore, canvasStore, imageStore } = useStore();
+  const handleClick = (modeName: string) => {
+    if (!imageStore.url) {
+      return;
+    }
+    imageStore.resetScale();
+    toolbarStore.toggle(modeName);
+    canvasStore.setMode(modeName.toLowerCase());
+  };
   const items: IMenuItems[] = [
     {
       icon: <Crop />,
       name: "Crop",
-      handler: () => {
-        toolbarStore.toggle("Crop");
-        canvasStore.setMode("crop");
-      },
+      handler: () => handleClick("Crop"),
     },
     {
       icon: <Flip />,
       name: "Rotate",
-      handler: () => toolbarStore.toggle("Rotate"),
+      handler: () => handleClick("Rotate"),
     },
     {icon: <Draw />, name: "Draw", handler: () => {}},
     {icon: <Shapes />, name: "Shapes", handler: () => {}},
@@ -45,11 +50,7 @@ const Menu: React.FC = () => {
               className={`menu__item ${
                 toolbarStore.type === item.name ? "menu__item_active" : ""
               }`}
-              onClick={() => {
-                if (canvasStore.imageUrl) {
-                  item.handler();
-                }
-              }}
+              onClick={item.handler}
             >
               {item.icon}
             </div>
