@@ -1,9 +1,9 @@
 import React from "react";
-import useStore from "../helpers/useStore";
-import { ReactComponent as Left } from "../assets/left.svg";
-import { ReactComponent as Right } from "../assets/right.svg";
-import { ReactComponent as FlipX } from "../assets/flipX.svg";
-import { ReactComponent as FlipY } from "../assets/flipY.svg";
+import useStore from "../../helpers/useStore";
+import { ReactComponent as Left } from "../../assets/left.svg";
+import { ReactComponent as Right } from "../../assets/right.svg";
+import { ReactComponent as FlipX } from "../../assets/flipX.svg";
+import { ReactComponent as FlipY } from "../../assets/flipY.svg";
 
 const ToolbarRotate: React.FC = () => {
   const { imageStore } = useStore();

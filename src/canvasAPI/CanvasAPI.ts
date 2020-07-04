@@ -37,6 +37,14 @@ export default class CanvasAPI {
     toolbarStore.close();
   }
 
+  public getCanvasCenter(): {x: number, y: number} {
+    const {width, height} = this.canvasSize;
+    return {
+      x: width / 2,
+      y: height / 2,
+    };
+  }
+
   private addEventListeners(): void {
     const canvas = (this.canvas as any).upperCanvasEl;
     canvas.addEventListener("wheel", this.onMouseWheel.bind(this));
@@ -57,6 +65,8 @@ export default class CanvasAPI {
   private destroyCurrentMode(): void {
     if (this.mode === "crop") {
       this.cropper.destroy();
+    } else if (this.mode === "draw") {
+      this.canvas.isDrawingMode = false;
     }
     this.mode = "";
   }
@@ -64,6 +74,8 @@ export default class CanvasAPI {
   private setMode(): void {
     if (this.mode === "crop") {
       this.cropper.initialize();
+    } else if (this.mode === "draw") {
+      this.canvas.isDrawingMode = true;
     }
   }
 

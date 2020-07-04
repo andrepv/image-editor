@@ -5,7 +5,7 @@ import { CSSTransition, TransitionGroup } from "react-transition-group";
 import Menu from "./components/Menu";
 import Header from "./components/Header";
 import Canvas from "./components/Canvas";
-import Toolbar from "./components/Toolbar";
+import Toolbar from "./components/Toolbar/Toolbar";
 import ZoomControl from "./components/ZoomControl";
 import useStore from "./helpers/useStore";
 

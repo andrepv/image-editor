@@ -36,7 +36,11 @@ const Menu: React.FC = () => {
       name: "Rotate",
       handler: () => handleClick("Rotate"),
     },
-    {icon: <Draw />, name: "Draw", handler: () => {}},
+    {
+      icon: <Draw />,
+      name: "Draw",
+      handler: () => handleClick("Draw"),
+    },
     {icon: <Shapes />, name: "Shapes", handler: () => {}},
     {icon: <Text />, name: "Text", handler: () => {}},
     {icon: <Filter />, name: "Filter", handler: () => {}},

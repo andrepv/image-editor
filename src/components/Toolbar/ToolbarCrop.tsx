@@ -1,8 +1,8 @@
 import React, { useState, ChangeEvent, useEffect } from "react";
 import { autorun } from "mobx";
 import { useObserver } from "mobx-react";
-import useStore from "../helpers/useStore";
-import { ReactComponent as Crop } from "../assets/crop.svg";
+import useStore from "../../helpers/useStore";
+import { ReactComponent as Crop } from "../../assets/crop.svg";
 
 const ToolbarCrop: React.FC = () => {
   const { cropperStore } = useStore();
