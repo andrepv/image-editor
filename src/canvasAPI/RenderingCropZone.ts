@@ -94,6 +94,7 @@ export default class RenderingCropZone {
       fill: "rgba(0, 0, 0, 0.5)",
       selectable: false,
       hoverCursor: "default",
+      name: "overlay",
     });
     this.canvasAPI.canvas.add(this.outerRect);
   }

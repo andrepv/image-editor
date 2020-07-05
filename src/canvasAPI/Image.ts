@@ -50,6 +50,7 @@ export default class CanvasImage {
       crossOrigin: "anonymous",
       flipX: this.flipX,
       flipY: this.flipY,
+      name: "image",
     });
     image.scaleToWidth(this.width);
     image.scaleToHeight(this.height);
@@ -97,7 +98,7 @@ export default class CanvasImage {
     return {width, height};
   }
 
-  private zoom(scale: number): void {
+  public zoom(scale: number): void {
     this.scale = scale;
     this.setSize();
     this.canvasAPI.canvas.setZoom(scale);

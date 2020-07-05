@@ -284,6 +284,15 @@ export default class CropZone {
     this.top = value;
   }
 
+  private getImagesAspectRatio(): number {
+    const {originalImage, flipX, flipY, angle} = this.canvasAPI.image;
+    const image = new fabric.Image(originalImage, {flipX, flipY});
+    image.rotate(angle).setCoords();
+    const actualImageWidth = this.canvasAPI.canvasSize.width;
+    const originalImageWidth = image.getBoundingRect().width;
+    return originalImageWidth / actualImageWidth;
+  }
+
   private updateWidth = autorun(() => {
     if (this.width !== cropperStore.cropZoneWidth) {
       const {minWidth} = this.getMinSize();
@@ -323,23 +332,18 @@ export default class CropZone {
 
   private crop = autorun(() => {
     if (cropperStore.shouldCrop) {
-      const {originalImage, flipX, flipY, angle} = this.canvasAPI.image;
-      const {canvasSize} = this.canvasAPI;
+      this.rendering.removeAll();
+      const ratio = this.getImagesAspectRatio();
+      this.canvasAPI.image.zoom(ratio);
 
-      const image = new fabric.Image(originalImage, {flipX, flipY});
-      image.rotate(angle).setCoords();
-
-      const {width, height} = image.getBoundingRect();
-      const ratioX = width / canvasSize.width;
-      const ratioY = height / canvasSize.height;
-
-      const croppedImageUrl = image.toDataURL({
-        left: this.left * ratioX,
-        top: this.top * ratioY,
-        width: this.width * ratioX,
-        height: this.height * ratioY,
+      const croppedImageUrl = this.canvasAPI.canvas.toDataURL({
+        left: this.left * ratio,
+        top: this.top * ratio,
+        width: this.width * ratio,
+        height: this.height * ratio,
       });
 
+      this.canvasAPI.image.zoom(1);
       this.canvasAPI.crop(croppedImageUrl);
       cropperStore.crop(false);
     }
