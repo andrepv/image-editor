@@ -11,7 +11,7 @@ const Toolbar: React.FC = () => {
   const contentMap: any = {
     Crop: <ToolbarCrop />,
     Rotate: <ToolbarRotate />,
-    Drawing: <ToolbarDrawing />,
+    Draw: <ToolbarDrawing />,
   };
   const close = () => {
     toolbarStore.close();

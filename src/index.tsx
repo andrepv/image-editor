@@ -9,6 +9,7 @@ import canvasStore from "./stores/canvasStore";
 import toolbarStore from "./stores/toolbarStore";
 import cropperStore from "./stores/cropperStore";
 import imageStore from "./stores/imageStore";
+import drawingStore from "./stores/drawingStore";
 import { StoreProvider } from "./helpers/storeProvider";
 
 const stores = {
@@ -16,6 +17,7 @@ const stores = {
   toolbarStore,
   cropperStore,
   imageStore,
+  drawingStore,
 };
 
 ReactDOM.render(

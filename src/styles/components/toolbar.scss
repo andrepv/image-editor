@@ -77,4 +77,21 @@
     border: 1px solid;
     margin: 20px 0 0;
   }
+
+  &__colors {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    row-gap: 10px;
+    cursor: default;
+  }
+  &__color {
+    width: 25px;
+    height: 25px;
+    border-radius: 50px;
+    cursor: pointer;
+    border: 0;
+    &_active {
+      border: 1px solid;
+    }
+  }
 }
