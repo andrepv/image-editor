@@ -2,6 +2,7 @@ import React from "react";
 import ToolbarCrop from "./ToolbarCrop";
 import ToolbarRotate from "./ToolbarRotate";
 import ToolbarDrawing from "./ToolbarDrawing";
+import ToolbarText from "./ToolbarText";
 import useStore from "../../helpers/useStore";
 import { ReactComponent as Close } from "../../assets/close.svg";
 import { useObserver } from "mobx-react";
@@ -12,6 +13,7 @@ const Toolbar: React.FC = () => {
     Crop: <ToolbarCrop />,
     Rotate: <ToolbarRotate />,
     Draw: <ToolbarDrawing />,
+    Text: <ToolbarText />,
   };
   const close = () => {
     toolbarStore.close();

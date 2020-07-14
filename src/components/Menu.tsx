@@ -41,8 +41,11 @@ const Menu: React.FC = () => {
       name: "Draw",
       handler: () => handleClick("Draw"),
     },
-    {icon: <Shapes />, name: "Shapes", handler: () => {}},
-    {icon: <Text />, name: "Text", handler: () => {}},
+    {
+      icon: <Text />,
+      name: "Text",
+      handler: () => handleClick("Text"),
+    },
     {icon: <Filter />, name: "Filter", handler: () => {}},
   ];
   return useObserver(() => (

@@ -13,6 +13,7 @@
     "@types/react-transition-group": "^4.4.0",
     "@types/unsplash-js": "^6.0.1",
     "fabric": "^3.6.3",
+    "googleapis": "^52.1.0",
     "mobx": "^5.15.4",
     "mobx-react": "^6.2.2",
     "node-sass": "^4.14.1",

@@ -10,6 +10,7 @@ import toolbarStore from "./stores/toolbarStore";
 import cropperStore from "./stores/cropperStore";
 import imageStore from "./stores/imageStore";
 import drawingStore from "./stores/drawingStore";
+import textStore from "./stores/textStore";
 import { StoreProvider } from "./helpers/storeProvider";
 
 const stores = {
@@ -18,6 +19,7 @@ const stores = {
   cropperStore,
   imageStore,
   drawingStore,
+  textStore,
 };
 
 ReactDOM.render(

@@ -6,6 +6,7 @@ import toolbarStore from "../stores/toolbarStore";
 import imageStore from "../stores/imageStore";
 import CanvasImage from "./Image";
 import Drawing from "./Drawing";
+import Text from "./Text";
 
 type CanvasSize = {
   width: number;
@@ -17,6 +18,7 @@ export default class CanvasAPI {
   public image: CanvasImage;
   public cropper: Cropper;
   public drawing: Drawing;
+  public text: Text;
   public canvasSize: CanvasSize = {width: 0, height: 0};
   private mode: string = "";
 
@@ -25,6 +27,7 @@ export default class CanvasAPI {
     this.cropper = new Cropper(this);
     this.image = new CanvasImage(this);
     this.drawing = new Drawing(canvas);
+    this.text = new Text(canvas);
     this.addEventListeners();
   }
 
@@ -67,7 +70,7 @@ export default class CanvasAPI {
   }
 
   private onObjectAdded(event: fabric.IEvent): void {
-    if (this.mode !== "draw") {
+    if (this.mode === "crop") {
       return;
     }
     event?.target?.set({
@@ -84,6 +87,8 @@ export default class CanvasAPI {
       this.cropper.destroy();
     } else if (this.mode === "draw") {
       this.drawing.destroy();
+    } else if (this.mode === "text") {
+      this.text.destroy();
     }
     this.mode = "";
   }
@@ -93,6 +98,8 @@ export default class CanvasAPI {
       this.cropper.initialize();
     } else if (this.mode === "draw") {
       this.drawing.initialize();
+    } else if (this.mode === "text") {
+      this.text.initialize();
     }
   }
 

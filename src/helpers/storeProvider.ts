@@ -4,6 +4,7 @@ import { ToolbarStore } from "../stores/toolbarStore";
 import { CropperStore } from "../stores/cropperStore";
 import { ImageStore } from "../stores/imageStore";
 import { DrawingStore } from "../stores/drawingStore";
+import { TextStore } from "../stores/textStore";
 
 type Stores = {
   canvasStore: CanvasStore,
@@ -11,6 +12,7 @@ type Stores = {
   cropperStore: CropperStore,
   imageStore: ImageStore,
   drawingStore: DrawingStore,
+  textStore: TextStore,
 }
 
 export const StoreContext = createContext({} as Stores);
