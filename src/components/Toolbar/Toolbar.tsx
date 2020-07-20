@@ -6,6 +6,7 @@ import ToolbarText from "./ToolbarText";
 import useStore from "../../helpers/useStore";
 import { ReactComponent as Close } from "../../assets/close.svg";
 import { useObserver } from "mobx-react";
+import ToolbarFilters from "./ToolbarFilters";
 
 const Toolbar: React.FC = () => {
   const { toolbarStore, canvasStore } = useStore();
@@ -14,6 +15,7 @@ const Toolbar: React.FC = () => {
     Rotate: <ToolbarRotate />,
     Draw: <ToolbarDrawing />,
     Text: <ToolbarText />,
+    Filters: <ToolbarFilters />,
   };
   const close = () => {
     toolbarStore.close();

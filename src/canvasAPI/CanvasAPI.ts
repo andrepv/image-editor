@@ -89,6 +89,8 @@ export default class CanvasAPI {
       this.drawing.destroy();
     } else if (this.mode === "text") {
       this.text.destroy();
+    } else if (this.mode === "filters") {
+      this.image.filter.destroy();
     }
     this.mode = "";
   }
@@ -100,6 +102,8 @@ export default class CanvasAPI {
       this.drawing.initialize();
     } else if (this.mode === "text") {
       this.text.initialize();
+    } else if (this.mode === "filters") {
+      this.image.filter.initialize();
     }
   }
 
