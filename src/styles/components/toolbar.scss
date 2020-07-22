@@ -8,6 +8,7 @@
   padding: 43px 25px 0;
   overflow-y: auto;
   height: 100vh;
+  transition: all .3s;
   &-enter {
     transform: translateX(-200%);
   }
@@ -25,7 +26,11 @@
   &__block {
     margin-bottom: 30px;
   }
-
+  &_search {
+    grid-column-end: 13;
+    z-index: 999;
+    padding: 43px 21%;
+  }
 
 
   &__header {

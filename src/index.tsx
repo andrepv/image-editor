@@ -11,6 +11,7 @@ import cropperStore from "./stores/cropperStore";
 import imageStore from "./stores/imageStore";
 import drawingStore from "./stores/drawingStore";
 import textStore from "./stores/textStore";
+import searchStore from "./stores/searchStore";
 import { StoreProvider } from "./helpers/storeProvider";
 
 const stores = {
@@ -20,6 +21,7 @@ const stores = {
   imageStore,
   drawingStore,
   textStore,
+  searchStore,
 };
 
 ReactDOM.render(
