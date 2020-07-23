@@ -21,14 +21,24 @@ export default class CanvasAPI {
   public text: Text;
   public canvasSize: CanvasSize = {width: 0, height: 0};
   private mode: string = "";
+  private selectedObject: fabric.Object | null = null;
+  private listeners: any;
 
   constructor(canvas: fabric.Canvas) {
     this.canvas = canvas;
     this.cropper = new Cropper(this);
     this.image = new CanvasImage(this);
     this.drawing = new Drawing(canvas);
-    this.text = new Text(canvas);
+    this.text = new Text(this);
+
+    this.listeners = {
+      onKeyDown: this.onKeyDown.bind(this),
+      onObjectAdded: this.onObjectAdded.bind(this),
+      onMouseWheel: this.onMouseWheel.bind(this),
+      onMouseDown: this.onMouseDown.bind(this),
+    };
     this.addEventListeners();
+    this.canvas.selection = false;
   }
 
   public setCanvasSize(width: number, height: number): void {
@@ -51,10 +61,21 @@ export default class CanvasAPI {
     };
   }
 
+  public selectObject(obj: fabric.Object): void {
+    this.selectedObject = obj;
+    document.addEventListener("keydown", this.listeners.onKeyDown);
+  }
+
+  public deselectObject(): void {
+    this.selectedObject = null;
+    document.removeEventListener("keydown", this.listeners.onKeyDown);
+  }
+
   private addEventListeners(): void {
     const canvas = (this.canvas as any).upperCanvasEl;
-    canvas.addEventListener("wheel", this.onMouseWheel.bind(this));
-    this.canvas.on("object:added", this.onObjectAdded.bind(this));
+    canvas.addEventListener("wheel", this.listeners.onMouseWheel);
+    this.canvas.on("object:added", this.listeners.onObjectAdded);
+    this.canvas.on("mouse:down", this.listeners.onMouseDown);
   }
 
   private onMouseWheel(event: WheelEvent): void {
@@ -69,6 +90,29 @@ export default class CanvasAPI {
     }
   }
 
+  private onMouseDown(event: fabric.IEvent): void {
+    const {target} = event;
+    const name = target?.name;
+    const selectableObjects = [this.drawing.OBJ_NAME, this.text.OBJ_NAME];
+    if (!name || !selectableObjects.includes(name)) {
+      if (this.selectedObject) {
+        this.deselectObject();
+      }
+      return;
+    }
+    this.selectObject(target as fabric.Object);
+  }
+
+  private onKeyDown(event: KeyboardEvent): void {
+    if (event.keyCode === 46) {
+      if (this.selectedObject) {
+        this.canvas.remove(this.selectedObject);
+        this.canvas.renderAll();
+        document.removeEventListener("keydown", this.listeners.onKeyDown);
+      }
+    }
+  }
+
   private onObjectAdded(event: fabric.IEvent): void {
     if (this.mode === "crop") {
       return;
@@ -80,6 +124,11 @@ export default class CanvasAPI {
       cornerStrokeColor: "white",
       transparentCorners: false,
     });
+    if (this.mode === "draw") {
+      event?.target?.set({
+        name: this.drawing.OBJ_NAME,
+      });
+    }
   }
 
   private destroyCurrentMode(): void {

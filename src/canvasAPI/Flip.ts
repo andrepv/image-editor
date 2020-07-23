@@ -35,12 +35,13 @@ export default class Flip {
     this.image.handleObjectAccordingToTiltAngle(
       obj,
       () => {
+        const strokeWidth = obj.strokeWidth || 1;
         if (this.axis === "x") {
           obj.flipX = !obj.flipX;
-          obj.left = this.image.width - (obj.left + obj.width);
+          obj.left = (this.image.width - (obj.left + obj.width)) - strokeWidth;
         } else {
           obj.flipY = !obj.flipY;
-          obj.top = this.image.height - (obj.top + obj.height);
+          obj.top = (this.image.height - (obj.top + obj.height)) - strokeWidth;
         }
       },
     );

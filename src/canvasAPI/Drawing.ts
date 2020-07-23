@@ -9,6 +9,7 @@ export default class Drawing {
   private isLineStraight: boolean = false;
   private width: number = 1;
   private color: string = drawingStore.color;
+  public readonly OBJ_NAME: string = "drawing";
 
   constructor(canvas: fabric.Canvas) {
     this.canvas = canvas;
@@ -83,7 +84,7 @@ export default class Drawing {
   }
 
   private lockCanvasObjects(): void {
-    this.canvas.selection = false;
+    // this.canvas.selection = false;
     this.canvas.forEachObject(obj => {
       obj.set({
           evented: false,
@@ -92,7 +93,7 @@ export default class Drawing {
   }
 
   private unlockCanvasObjects(): void {
-    this.canvas.selection = true;
+    // this.canvas.selection = true;
     this.canvas.forEachObject(obj => {
       obj.set({
           evented: true,

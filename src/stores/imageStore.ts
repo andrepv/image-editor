@@ -18,6 +18,9 @@ export class ImageStore {
   public readonly angleStep: number = 90;
 
   @action public setUrl(url: string): void {
+    if (url === this.url) {
+      return;
+    }
     this.url = url;
     this.resetState();
   }

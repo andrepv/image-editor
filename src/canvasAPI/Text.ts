@@ -1,6 +1,7 @@
 import { autorun } from "mobx";
 import { fabric } from "fabric";
 import textStore, { TextСonstants } from "../stores/textStore";
+import CanvasAPI from "./CanvasAPI";
 
 interface IText extends fabric.IText {
   fontColorCode: string;
@@ -10,22 +11,26 @@ interface IText extends fabric.IText {
 }
 
 export default class Text {
+  private canvasAPI: CanvasAPI;
   private canvas: fabric.Canvas;
   private selectedText: any;
   private listeners: any;
-  public readonly TEXT_OBJ_NAME: string = "text";
+  public readonly OBJ_NAME: string = "text";
 
-  constructor(canvas: fabric.Canvas) {
-    this.canvas = canvas;
+  constructor(canvasAPI: CanvasAPI) {
+    this.canvasAPI = canvasAPI;
+    this.canvas = canvasAPI.canvas;
     this.selectedText = new fabric.IText("") as IText;
     this.listeners = {
-      onMouseDown: this.handleMouseDown.bind(this),
-      onObjectScaling: this.handleObjectScaling.bind(this),
+      onMouseDown: this.onMouseDown.bind(this),
+      onObjectScaling: this.onObjectScaling.bind(this),
+      onObjectRemoving: this.onObjectRemoving.bind(this),
     };
   }
 
   public initialize(): void {
     this.canvas.discardActiveObject().renderAll();
+    this.canvasAPI.deselectObject();
     this.addEventListeners();
     this.lockCanvasObjects();
   }
@@ -35,12 +40,12 @@ export default class Text {
     this.unlockCanvasObjects();
     this.canvas.discardActiveObject().renderAll();
     textStore.isTextSelected = false;
+    this.canvasAPI.deselectObject();
   }
 
   private lockCanvasObjects(): void {
-    this.canvas.selection = false;
     this.canvas.forEachObject(obj => {
-      if (obj.name !== this.TEXT_OBJ_NAME) {
+      if (obj.name !== this.OBJ_NAME) {
         obj.set({
           evented: false,
         });
@@ -49,7 +54,6 @@ export default class Text {
   }
 
   private unlockCanvasObjects(): void {
-    this.canvas.selection = true;
     this.canvas.forEachObject(obj => {
       obj.set({
         evented: true,
@@ -60,17 +64,19 @@ export default class Text {
   private addEventListeners(): void {
     this.canvas.on("mouse:down", this.listeners.onMouseDown);
     this.canvas.on("object:scaling", this.listeners.onObjectScaling);
+    this.canvas.on("object:removed", this.listeners.onObjectRemoving);
   }
 
   private removeEventListeners(): void {
     this.canvas.off("mouse:down", this.listeners.onMouseDown);
     this.canvas.off("object:scaling", this.listeners.onObjectScaling);
+    this.canvas.off("object:removed", this.listeners.onObjectRemoving);
   }
 
-  private handleMouseDown(event: fabric.IEvent): void {
+  private onMouseDown(event: fabric.IEvent): void {
     const {target} = event;
     const name = target?.name;
-    if (!name || name !== this.TEXT_OBJ_NAME) {
+    if (!name || name !== this.OBJ_NAME) {
       if (this.selectedText) {
         textStore.isTextSelected = false;
       }
@@ -120,7 +126,7 @@ export default class Text {
     } = textStore;
     const text = new fabric.IText("click to select") as IText;
     text.set({
-      name: this.TEXT_OBJ_NAME,
+      name: this.OBJ_NAME,
       fontSize,
       lineHeight,
       fill: fontColor,
@@ -132,6 +138,10 @@ export default class Text {
     return text;
   }
 
+  public onObjectRemoving(): void {
+    textStore.isTextSelected = false;
+  }
+
   private addText = autorun(() => {
     const {shouldAddText} = textStore;
     if (shouldAddText) {
@@ -141,6 +151,7 @@ export default class Text {
       this.selectedText.center().setCoords();
       this.canvas.setActiveObject(this.selectedText);
       textStore.isTextSelected = true;
+      this.canvasAPI.selectObject(this.selectedText);
     }
     textStore.shouldAddText = false;
   });
@@ -201,8 +212,18 @@ export default class Text {
     this.canvas.renderAll();
   });
 
+  private removeText = autorun(() => {
+    const {shouldRemoveText} = textStore;
+    if (shouldRemoveText) {
+      this.canvas.remove(this.selectedText);
+      this.canvas.renderAll();
+      this.canvasAPI.deselectObject();
+    }
+    textStore.shouldRemoveText = false;
+  });
 
-  private handleObjectScaling(event: fabric.IEvent): void {
+
+  private onObjectScaling(event: fabric.IEvent): void {
     const target = event.target as IText;
     if (!target) {
       return;

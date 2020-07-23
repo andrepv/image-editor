@@ -6,6 +6,7 @@ import { ReactComponent as Italic } from "../../assets/italic.svg";
 import { ReactComponent as AlignLeft } from "../../assets/align-left.svg";
 import { ReactComponent as AlignCenter } from "../../assets/align-center.svg";
 import { ReactComponent as AlignRight } from "../../assets/align-right.svg";
+import {ReactComponent as Trash } from "../../assets/trash.svg";
 import Slider from "../Slider";
 import ColorPicker from "../ColorPicker";
 import ToggleButton from "../ToggleButton";
@@ -111,6 +112,7 @@ const ToolbarText: React.FC = () => {
             callback={rgbCode => textStore.setBackgroundColor(rgbCode)}
           />
         )}
+        <p onClick={() => textStore.removeText()}>Remove <Trash/></p>
         </>
       ) : null}
     </div>

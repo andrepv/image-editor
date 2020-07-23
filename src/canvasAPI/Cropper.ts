@@ -61,7 +61,7 @@ export default class Cropper {
   }
 
   private handleMouseDown(event: fabric.IEvent): void {
-    this.canvasAPI.canvas.selection = false;
+    // this.canvasAPI.canvas.selection = false;
     if (event?.target?.name === "cropzone") {
       this.cropZone.toggleFocus(true);
     }

@@ -12,6 +12,7 @@ export enum TextСonstants {
 export class TextStore {
   @observable public isTextControlHidden: boolean = false;
   @observable public shouldAddText: boolean = false;
+  @observable public shouldRemoveText: boolean = false;
   @observable public fontWeight: string = "normal";
   @observable public underline: boolean = false;
   @observable public fontStyle: string = "normal";
@@ -26,6 +27,10 @@ export class TextStore {
 
   @action public addText(): void {
     this.shouldAddText = true;
+  }
+
+  @action public removeText(): void {
+    this.shouldRemoveText = true;
   }
 
   @action public setFontWeight(value: string): void {
