@@ -19,7 +19,7 @@ export default class Filter {
     if (!this.shouldApplyFilter) {
       return;
     };
-    this.image.handleObjectAccordingToTiltAngle(
+    this.image.rotation.handleObjectAtAngle(
       this.image.imageElement,
       () => {
         this.updateTmpCanvas();

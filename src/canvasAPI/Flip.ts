@@ -32,16 +32,16 @@ export default class Flip {
   }
 
   private flipObject(obj: any): void {
-    this.image.handleObjectAccordingToTiltAngle(
+    this.image.rotation.handleObjectAtAngle(
       obj,
       () => {
-        const strokeWidth = obj.strokeWidth || 1;
+        let {width, height}= obj.getBoundingRect();
         if (this.axis === "x") {
           obj.flipX = !obj.flipX;
-          obj.left = (this.image.width - (obj.left + obj.width)) - strokeWidth;
+          obj.left = this.image.width - width - obj.left;
         } else {
           obj.flipY = !obj.flipY;
-          obj.top = (this.image.height - (obj.top + obj.height)) - strokeWidth;
+          obj.top = this.image.height - height - obj.top;
         }
       },
     );

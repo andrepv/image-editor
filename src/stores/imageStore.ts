@@ -26,21 +26,24 @@ export class ImageStore {
   }
 
   @action public rotateRight(): void {
-    this.angleDiff = this.angleStep;
-    if (this.angle === 360) {
-      this.angle = this.angleStep;
-      return;
+    let nextAngle = this.angle + this.angleStep;
+    if (nextAngle > 360) {
+      nextAngle -= 360;
     }
-    this.angle += this.angleStep;
+    this.setAngle(nextAngle);
   }
 
   @action public rotateLeft(): void {
-    this.angleDiff = -this.angleStep;
-    if (this.angle === -360) {
-      this.angle = -this.angleStep;
-      return;
+    let nextAngle = this.angle - this.angleStep;
+    if (nextAngle < -360) {
+      nextAngle += 360;
     }
-    this.angle -= this.angleStep;
+    this.setAngle(nextAngle);
+  }
+
+  @action public setAngle(angle: number): void {
+    this.angleDiff = angle - this.angle;
+    this.angle = angle;
   }
 
   @action public toggleFlipX(): void {

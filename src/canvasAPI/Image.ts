@@ -4,6 +4,7 @@ import imageStore from "../stores/imageStore";
 import CanvasAPI from "./CanvasAPI";
 import Flip from "./Flip";
 import Filter from "./Filter";
+import Rotation from "./Rotation";
 
 export default class CanvasImage {
   public originalImage: HTMLImageElement;
@@ -15,8 +16,9 @@ export default class CanvasImage {
   public width: number = 0;
   public height: number = 0;
   private scale: number = 1;
-  private flip: Flip;
+  public flip: Flip;
   public filter: Filter;
+  public rotation: Rotation;
   private readonly canvasAPI: CanvasAPI;
 
   constructor(canvasAPI: CanvasAPI) {
@@ -25,6 +27,7 @@ export default class CanvasImage {
     this.canvasAPI = canvasAPI;
     this.flip = new Flip(this, canvasAPI);
     this.filter = new Filter(this, canvasAPI);
+    this.rotation = new Rotation(this, canvasAPI);
   }
 
   public render() {
@@ -85,20 +88,6 @@ export default class CanvasImage {
     return {width, height};
   }
 
-  private rotateEachObject(): void {
-    if (!this.imageElement) {
-      return;
-    }
-    const {x, y} = this.canvasAPI.getCanvasCenter();
-    const prevCanvasCenter = new fabric.Point(x, y);
-    this.setSize();
-
-    this.canvasAPI.canvas.forEachObject(obj => {
-      this.rotateObject(obj, prevCanvasCenter, imageStore.angleDiff);
-    });
-    this.canvasAPI.canvas.renderAll();
-  }
-
   private getOriginalSize(): {width: number, height: number} {
     const originalImage = new fabric.Image(this.originalImage);
     originalImage.rotate(this.angle).setCoords();
@@ -110,84 +99,6 @@ export default class CanvasImage {
     this.scale = scale;
     this.setSize();
     this.canvasAPI.canvas.setZoom(scale);
-  }
-
-  public rotateObject(
-    obj: fabric.Object,
-    prevCanvasCenter: fabric.Point,
-    angleDiff: number,
-  ): void {
-    if (!obj) {
-      return;
-    }
-    const canvasCenter = this.canvasAPI.getCanvasCenter();
-    const radians = fabric.util.degreesToRadians(angleDiff);
-    const diffX = prevCanvasCenter.x - canvasCenter.x;
-    const diffY = prevCanvasCenter.y - canvasCenter.y;
-    const objectPoint = new fabric.Point(
-      obj.left as number,
-      obj.top as number,
-    );
-    const newObjectPosition = fabric.util.rotatePoint(
-      objectPoint,
-      prevCanvasCenter,
-      radians,
-    );
-    obj.set({
-      left: newObjectPosition.x - diffX,
-      top: newObjectPosition.y - diffY,
-      angle: angleDiff + (obj.angle as number),
-    });
-    obj.setCoords();
-  }
-
-  public handleObjectAccordingToTiltAngle(
-    obj: any,
-    handler: () => void,
-  ): void {
-    const originalAngle = this.angle;
-    this.rotateObjectToStartingAngle(obj);
-
-    handler();
-
-    const prevCanvasCenter = this.getCanvasCenter();
-    const startingObjAngle = this.angle;
-
-    this.setAngle(originalAngle);
-    this.rotateObjectToOriginalAngle(
-      obj,
-      prevCanvasCenter,
-      startingObjAngle,
-    );
-    obj.setCoords();
-  }
-
-  private rotateObjectToStartingAngle(obj: any): void {
-    const prevCanvasCenter = this.getCanvasCenter();
-    const startingAngle = this.angle - obj.angle;
-    this.setAngle(startingAngle);
-
-    const angleDiff = 0 - obj.angle;
-    this.rotateObject(obj, prevCanvasCenter, angleDiff);
-  }
-
-  private rotateObjectToOriginalAngle(
-    obj: fabric.Object,
-    prevCanvasCenter: fabric.Point,
-    startingObjAngle: number,
-  ): void {
-    const angleDiff = startingObjAngle + this.angle;
-    this.rotateObject(obj, prevCanvasCenter, angleDiff);
-  }
-
-  private getCanvasCenter(): fabric.Point {
-    const {x, y} = this.canvasAPI.getCanvasCenter();
-    return new fabric.Point(x, y);
-  }
-
-  private setAngle(angle: number): void {
-    this.angle = angle;
-    this.setSize();
   }
 
   private updateFlipX = autorun(() => {
@@ -202,7 +113,7 @@ export default class CanvasImage {
 
   private updateAngle = autorun(() => {
     this.angle = imageStore.angle;
-    this.rotateEachObject();
+    this.rotation.rotateEachObject();
   });
 
   private updateUrl = autorun(() => {

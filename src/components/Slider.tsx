@@ -12,6 +12,9 @@ const Slider: React.FC<Props> = props => {
   const {title, value, min, max, callback} = props;
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let inputValue = parseInt(String(event.target.value), 10);
+    if (!inputValue) {
+      inputValue = Number(min);
+    }
     inputValue = Math.max(inputValue, Number(min));
     inputValue = Math.min(inputValue, Number(max));
     callback(inputValue);
