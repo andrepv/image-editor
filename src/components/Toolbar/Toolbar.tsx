@@ -3,7 +3,7 @@ import ToolbarCrop from "./ToolbarCrop";
 import ToolbarRotate from "./ToolbarRotate";
 import ToolbarDrawing from "./ToolbarDrawing";
 import ToolbarText from "./ToolbarText";
-import useStore from "../../helpers/useStore";
+import useStore from "../../hooks/useStore";
 import { ReactComponent as Close } from "../../assets/close.svg";
 import { useObserver } from "mobx-react";
 import ToolbarFilters from "./ToolbarFilters";

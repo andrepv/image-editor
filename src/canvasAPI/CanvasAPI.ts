@@ -2,11 +2,17 @@ import { fabric } from "fabric";
 import { autorun } from "mobx";
 import Cropper from "./Cropper";
 import canvasStore from "../stores/canvasStore";
-import toolbarStore from "../stores/toolbarStore";
 import imageStore from "../stores/imageStore";
 import CanvasImage from "./Image";
 import Drawing from "./Drawing";
 import Text from "./Text";
+import { AddObjectToCanvasCommand } from "../command/addObject";
+import { RemoveObjectFromCanvasCommand } from "../command/removeObject";
+import {
+  commandHistory,
+  CommandHistory,
+  Command,
+} from "../command/commandHistory";
 
 type CanvasSize = {
   width: number;
@@ -19,8 +25,9 @@ export default class CanvasAPI {
   public cropper: Cropper;
   public drawing: Drawing;
   public text: Text;
+  public history: CommandHistory = commandHistory;
   public canvasSize: CanvasSize = {width: 0, height: 0};
-  private mode: string = "";
+  public mode: string = "";
   private selectedObject: fabric.Object | null = null;
   private listeners: any;
 
@@ -47,10 +54,15 @@ export default class CanvasAPI {
     this.canvas.setWidth(width);
   }
 
-  public crop(url: string): void {
-    canvasStore.setMode("");
-    imageStore.setUrl(url);
-    toolbarStore.close();
+  public executeCommand(command: Command): void {
+    this.addCommandToHistory(command);
+    command.execute();
+  }
+
+  public addCommandToHistory(command: Command): void {
+    if (imageStore.shouldAddCommandsToHistory) {
+      this.history.push(command);
+    }
   }
 
   public getCanvasCenter(): {x: number, y: number} {
@@ -109,6 +121,14 @@ export default class CanvasAPI {
         this.canvas.remove(this.selectedObject);
         this.canvas.renderAll();
         document.removeEventListener("keydown", this.listeners.onKeyDown);
+
+        this.addCommandToHistory(
+          new RemoveObjectFromCanvasCommand(
+            this.selectedObject,
+            (object: fabric.Object) => this.canvas.add(object),
+            (object: fabric.Object) => this.canvas.remove(object),
+          ),
+        );
       }
     }
   }
@@ -124,11 +144,24 @@ export default class CanvasAPI {
       cornerStrokeColor: "white",
       transparentCorners: false,
     });
+
     if (this.mode === "draw") {
-      event?.target?.set({
-        name: this.drawing.OBJ_NAME,
-      });
+      this.drawing.onAdded(event.target as fabric.Object);
+
+      const addObjCommand = new AddObjectToCanvasCommand(
+        event?.target as fabric.Object,
+        (object: fabric.Object) => this.canvas.add(object),
+        (object: fabric.Object) => this.canvas.remove(object),
+      );
+      this.addCommandToHistory(addObjCommand);
     }
+  }
+
+  public updateCurrentMode(): void {
+    const modeName = this.mode;
+    this.destroyCurrentMode();
+    this.mode = modeName;
+    this.initializeMode();
   }
 
   private destroyCurrentMode(): void {
@@ -138,30 +171,34 @@ export default class CanvasAPI {
       this.drawing.destroy();
     } else if (this.mode === "text") {
       this.text.destroy();
+    } else if (this.mode === "rotate") {
+      this.image.destroy();
     } else if (this.mode === "filters") {
       this.image.filter.destroy();
     }
     this.mode = "";
   }
 
-  private setMode(): void {
+  private initializeMode(): void {
     if (this.mode === "crop") {
       this.cropper.initialize();
     } else if (this.mode === "draw") {
       this.drawing.initialize();
     } else if (this.mode === "text") {
       this.text.initialize();
+    } else if (this.mode === "rotate") {
+      this.image.initialize();
     } else if (this.mode === "filters") {
       this.image.filter.initialize();
     }
   }
 
-  private updateMode = autorun(() => {
+  private setMode = autorun(() => {
     this.destroyCurrentMode();
     if (!canvasStore.mode) {
       return;
     }
     this.mode = canvasStore.mode;
-    this.setMode();
+    this.initializeMode();
   });
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import useStore from "../helpers/useStore";
+import useStore from "../hooks/useStore";
 
 import Tooltip from "./Tooltip";
 import { ReactComponent as Plus } from "../assets/plus.svg";

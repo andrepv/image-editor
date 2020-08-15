@@ -6,7 +6,7 @@ import { ReactComponent as Text } from "../assets/text.svg";
 import { ReactComponent as Filter } from "../assets/filter.svg";
 import { ReactComponent as Search } from "../assets/search.svg";
 import Tooltip from "./Tooltip";
-import useStore from "../helpers/useStore";
+import useStore from "../hooks/useStore";
 import { useObserver } from "mobx-react";
 
 interface IMenuItems {

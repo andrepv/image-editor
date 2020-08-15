@@ -5,25 +5,28 @@ import CanvasAPI from "./CanvasAPI";
 import Flip from "./Flip";
 import Filter from "./Filter";
 import Rotation from "./Rotation";
+import { RotationCommand } from "../command/rotation";
 
 export default class CanvasImage {
-  public originalImage: HTMLImageElement;
+  public imageElement: HTMLImageElement;
   public flipX: boolean = false;
   public flipY: boolean = false;
   public angle: number = 0;
+  public prevAngle: number = 0;
   public url: string = "";
-  public imageElement: fabric.Image | null = null;
+  public imageObject: fabric.Image | null = null;
   public width: number = 0;
   public height: number = 0;
-  private scale: number = 1;
   public flip: Flip;
   public filter: Filter;
   public rotation: Rotation;
   private readonly canvasAPI: CanvasAPI;
+  public readonly IMAGE_OBJ_NAME: string = "image";
+  private scale: number = 1;
 
   constructor(canvasAPI: CanvasAPI) {
-    this.originalImage = new Image();
-    this.originalImage.setAttribute("crossorigin", "anonymous");
+    this.imageElement = new Image();
+    this.imageElement.setAttribute("crossorigin", "anonymous");
     this.canvasAPI = canvasAPI;
     this.flip = new Flip(this, canvasAPI);
     this.filter = new Filter(this, canvasAPI);
@@ -34,8 +37,34 @@ export default class CanvasImage {
     if (!this.url) {
       return;
     }
-    this.originalImage.src = this.url;
+    this.imageElement.src = this.url;
+    this.filter.previousFilteredImage = this.url;
     fabric.Image.fromURL(this.url, this.onLoad.bind(this));
+  }
+
+  public initialize(): void {
+    this.prevAngle = this.angle;
+  }
+
+  public destroy(): void {
+    if (this.prevAngle !== this.angle) {
+      this.canvasAPI.executeCommand(
+        new RotationCommand(
+          this.prevAngle,
+          this.angle,
+        ),
+      );
+    }
+  }
+
+  public updateImageElement(url: string, callback?: () => void): void {
+    const image = new Image();
+    image.setAttribute("crossorigin", "anonymous");
+    image.addEventListener("load", () => {
+      this.imageElement = image;
+      callback && callback();
+    });
+    image.src = url;
   }
 
   private onLoad(): void {
@@ -45,12 +74,13 @@ export default class CanvasImage {
   }
 
   private addImage(): void {
-    this.imageElement = this.createImage();
-    this.canvasAPI.canvas.add(this.imageElement);
+    this.imageObject = this.createImage();
+    this.canvasAPI.canvas.add(this.imageObject);
+    imageStore.updateImageLoadingStatus("success");
   }
 
   private createImage(): fabric.Image {
-    const image = new fabric.Image(this.originalImage);
+    const image = new fabric.Image(this.imageElement);
     this.adjustImage(image);
     return image;
   }
@@ -62,7 +92,7 @@ export default class CanvasImage {
       crossOrigin: "anonymous",
       flipX: this.flipX,
       flipY: this.flipY,
-      name: "image",
+      name: this.IMAGE_OBJ_NAME,
     });
     image.scaleToWidth(this.width);
     image.scaleToHeight(this.height);
@@ -89,7 +119,7 @@ export default class CanvasImage {
   }
 
   private getOriginalSize(): {width: number, height: number} {
-    const originalImage = new fabric.Image(this.originalImage);
+    const originalImage = new fabric.Image(this.imageElement);
     originalImage.rotate(this.angle).setCoords();
     const {width, height} = originalImage.getBoundingRect();
     return {width, height};
@@ -101,19 +131,40 @@ export default class CanvasImage {
     this.canvasAPI.canvas.setZoom(scale);
   }
 
+  private updateFlip(callback: () => void): void {
+    if (this.prevAngle !== this.angle) {
+      this.canvasAPI.executeCommand(
+        new RotationCommand(
+          this.prevAngle,
+          this.angle,
+        ),
+      );
+      this.prevAngle = this.angle;
+    }
+    callback();
+
+    if (this.canvasAPI.mode === "crop") {
+      this.canvasAPI.updateCurrentMode();
+    }
+  }
+
   private updateFlipX = autorun(() => {
     this.flipX = imageStore.flipX;
-    this.flip.flipX();
+    this.updateFlip(() => this.flip.flipX());
   });
 
   private updateFlipY = autorun(() => {
     this.flipY = imageStore.flipY;
-    this.flip.flipY();
+    this.updateFlip(() => this.flip.flipY());
   });
 
   private updateAngle = autorun(() => {
     this.angle = imageStore.angle;
     this.rotation.rotateEachObject();
+
+    if (this.canvasAPI.mode === "crop") {
+      this.canvasAPI.updateCurrentMode();
+    }
   });
 
   private updateUrl = autorun(() => {
@@ -128,7 +179,20 @@ export default class CanvasImage {
 
   private updateFilter = autorun(() => {
     const {name, options} = imageStore.filter;
-    if (!this.imageElement) {
+
+    if (this.filter.currentFilterName === name) {
+      this.filter.addFilter({name, options}, true);
+      return;
+    }
+
+    if (!name && !this.filter.currentFilterName) {
+      return;
+    }
+
+    this.filter.previousFilterName = this.filter.currentFilterName;
+    this.filter.currentFilterName = name;
+
+    if (!this.imageObject) {
       return;
     }
     if (name) {
@@ -137,4 +201,16 @@ export default class CanvasImage {
       this.filter.removeFilter();
     }
   });
+
+  private removeAllObjects = autorun(() => {
+    let {shouldClearCanvas} = imageStore;
+    if (shouldClearCanvas) {
+      this.canvasAPI.canvas.forEachObject(obj => {
+        if (obj.name !== this.IMAGE_OBJ_NAME) {
+          this.canvasAPI.canvas.remove(obj);
+        }
+      });
+      shouldClearCanvas = false;
+    }
+  })
 }

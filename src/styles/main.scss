@@ -184,6 +184,13 @@ button {
   }
 }
 
-canvas.upper-canvas {
-  border: 1px solid;
+
+
+.disabled {
+  fill: #969696;
+  cursor: default;
 }
+
+// canvas.upper-canvas {
+//   border: 1px solid;
+// }

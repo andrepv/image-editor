@@ -1,8 +1,8 @@
 import React, { useRef, ChangeEvent } from "react";
 
-import { ReactComponent as Upload } from "../assets/upload.svg";
-import Tooltip from "./Tooltip";
-import useStore from "../helpers/useStore";
+import { ReactComponent as Upload } from "../../assets/upload.svg";
+import Tooltip from "../Tooltip";
+import useStore from "../../hooks/useStore";
 
 const UploadButton = () => {
   const inputFileRef = useRef<HTMLInputElement>(null);

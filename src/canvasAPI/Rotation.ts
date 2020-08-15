@@ -13,7 +13,7 @@ export default class Rotation {
   }
 
   public rotateEachObject(): void {
-    if (!this.image.imageElement) {
+    if (!this.image.imageObject) {
       return;
     }
     const {x, y} = this.canvasAPI.getCanvasCenter();
@@ -26,7 +26,7 @@ export default class Rotation {
   }
 
   private adjustEachObjectScale(): void {
-    const image = this.image.imageElement as any;
+    const image = this.image.imageObject as any;
     const canvasWidth = this.canvasAPI.canvas.getWidth();
     const {width: imageWidth} = image.getBoundingRect();
     const ratio = canvasWidth / imageWidth;

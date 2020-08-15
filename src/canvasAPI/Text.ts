@@ -2,6 +2,8 @@ import { autorun } from "mobx";
 import { fabric } from "fabric";
 import textStore, { TextСonstants } from "../stores/textStore";
 import CanvasAPI from "./CanvasAPI";
+import { RemoveObjectFromCanvasCommand } from "../command/removeObject";
+import { AddObjectToCanvasCommand } from "../command/addObject";
 
 interface IText extends fabric.IText {
   fontColorCode: string;
@@ -142,6 +144,25 @@ export default class Text {
     textStore.isTextSelected = false;
   }
 
+  private addTextToHistory(): void {
+    const addObjCommand = new AddObjectToCanvasCommand(
+      this.selectedText,
+      (object: fabric.Object) => this.canvas.add(object),
+      (object: fabric.Object) => this.canvas.remove(object),
+    );
+    this.canvasAPI.addCommandToHistory(addObjCommand);
+  }
+
+  private removeTextFromHistory(): void {
+    this.canvasAPI.addCommandToHistory(
+      new RemoveObjectFromCanvasCommand(
+        this.selectedText,
+        (object: fabric.Object) => this.canvas.add(object),
+        (object: fabric.Object) => this.canvas.remove(object),
+      ),
+    );
+  }
+
   private addText = autorun(() => {
     const {shouldAddText} = textStore;
     if (shouldAddText) {
@@ -152,6 +173,8 @@ export default class Text {
       this.canvas.setActiveObject(this.selectedText);
       textStore.isTextSelected = true;
       this.canvasAPI.selectObject(this.selectedText);
+
+      this.addTextToHistory();
     }
     textStore.shouldAddText = false;
   });
@@ -218,6 +241,8 @@ export default class Text {
       this.canvas.remove(this.selectedText);
       this.canvas.renderAll();
       this.canvasAPI.deselectObject();
+
+      this.removeTextFromHistory();
     }
     textStore.shouldRemoveText = false;
   });

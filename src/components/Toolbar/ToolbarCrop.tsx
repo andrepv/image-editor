@@ -1,11 +1,11 @@
 import React, { useState, ChangeEvent, useEffect } from "react";
 import { autorun } from "mobx";
 import { useObserver } from "mobx-react";
-import useStore from "../../helpers/useStore";
+import useStore from "../../hooks/useStore";
 import { ReactComponent as Crop } from "../../assets/crop.svg";
 
 const ToolbarCrop: React.FC = () => {
-  const { cropperStore } = useStore();
+  const { cropperStore, canvasStore, toolbarStore } = useStore();
   const [width, setWidth] = useState(cropperStore.cropZoneWidth);
   const [height, setHeight] = useState(cropperStore.cropZoneHeight);
 
@@ -78,7 +78,11 @@ const ToolbarCrop: React.FC = () => {
         </div>
         <button
           className="toolbar__crop-btn"
-          onClick={() => cropperStore.crop(true)}
+          onClick={() => {
+            cropperStore.crop(true);
+            canvasStore.setMode("");
+            toolbarStore.close();
+          }}
         >
           Crop
         </button>

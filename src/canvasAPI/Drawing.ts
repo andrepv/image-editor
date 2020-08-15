@@ -44,6 +44,12 @@ export default class Drawing {
     }
   }
 
+  public onAdded(obj: fabric.Object): void {
+    obj.set({
+      name: this.OBJ_NAME,
+    });
+  }
+
   private handleMouseDown(event: fabric.IEvent): void {
     const pointer = this.canvas.getPointer(event.e);
 
@@ -87,7 +93,7 @@ export default class Drawing {
     // this.canvas.selection = false;
     this.canvas.forEachObject(obj => {
       obj.set({
-          evented: false,
+        evented: false,
       });
     });
   }
@@ -96,7 +102,7 @@ export default class Drawing {
     // this.canvas.selection = true;
     this.canvas.forEachObject(obj => {
       obj.set({
-          evented: true,
+        evented: true,
       });
     });
   }

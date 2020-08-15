@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import Gallery, { PhotoProps, PhotoClickHandler } from "react-photo-gallery";
 
-import useUnsplashAPI, { Image } from "../../helpers/useUnsplashAPI";
+import useUnsplashAPI, { Image } from "../../hooks/useUnsplashAPI";
 import { ReactComponent as Search } from "../../assets/search2.svg";
 import { ReactComponent as Loader } from "../../assets/loader.svg";
-import useStore from "../../helpers/useStore";
+import useStore from "../../hooks/useStore";
 import { useObserver } from "mobx-react";
+import { commandHistory } from "../../command/commandHistory";
 
 export const ToolbarSearch: React.FC = () => {
   const {
@@ -22,9 +23,12 @@ export const ToolbarSearch: React.FC = () => {
   const [inputValue, setInputValue] = useState("");
 
   const handleImageClick: PhotoClickHandler = (event, photos) => {
-    imageStore.setUrl(search.images[photos.index].url);
+    const imageUrl = search.images[photos.index].url;
+    commandHistory.clearHistory();
+    imageStore.loadImage(imageUrl);
     toolbarStore.close();
     canvasStore.setMode("");
+    search.setImageUrl(imageUrl);
   };
 
   const galleryPhotoProp: PhotoProps[] = search.images.map(

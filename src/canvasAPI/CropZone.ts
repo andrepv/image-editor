@@ -3,6 +3,7 @@ import { fabric } from "fabric";
 import cropperStore, { Ratio } from "../stores/cropperStore";
 import { autorun } from "mobx";
 import RenderingCropZone from "./RenderingCropZone";
+import { CropCommand } from "../command/crop";
 
 type CropZoneInfo = {
   width: number,
@@ -285,8 +286,8 @@ export default class CropZone {
   }
 
   private getImagesAspectRatio(): number {
-    const {originalImage, flipX, flipY, angle} = this.canvasAPI.image;
-    const image = new fabric.Image(originalImage, {flipX, flipY});
+    const {imageElement, flipX, flipY, angle} = this.canvasAPI.image;
+    const image = new fabric.Image(imageElement, {flipX, flipY});
     image.rotate(angle).setCoords();
     const actualImageWidth = this.canvasAPI.canvasSize.width;
     const originalImageWidth = image.getBoundingRect().width;
@@ -342,9 +343,14 @@ export default class CropZone {
         width: this.width * ratio,
         height: this.height * ratio,
       });
-
       this.canvasAPI.image.zoom(1);
-      this.canvasAPI.crop(croppedImageUrl);
+      this.canvasAPI.executeCommand(
+        new CropCommand(
+          croppedImageUrl,
+          this.canvasAPI.image.imageElement.src,
+          this.canvasAPI.canvas.getObjects(),
+        ),
+      );
       cropperStore.crop(false);
     }
   });

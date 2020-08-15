@@ -2,33 +2,41 @@ import CanvasImage from "./Image";
 import CanvasAPI from "./CanvasAPI";
 import applyFilter from "../helpers/applyFilter";
 import imageStore from "../stores/imageStore";
+import { setImageCommand } from "../command/setImage";
+import { FilterImageCommand } from "../command/filter";
 
 export default class Filter {
+  public previousFilterName: string = "";
+  public currentFilterName: string = "";
+  public previousFilteredImage: string;
   private readonly image: CanvasImage;
   private readonly canvasAPI: CanvasAPI;
   private tmpCanvas: HTMLCanvasElement | null = null;
   private shouldApplyFilter: boolean = true;
-  private filteredImageDataURL: string = "";
+  private filteredImage: string = "";
 
   constructor(image: CanvasImage, canvasAPI: CanvasAPI) {
     this.image = image;
     this.canvasAPI = canvasAPI;
+    this.previousFilteredImage = this.image.imageElement.src;
   }
 
-  public addFilter(filter: any): void {
+  public addFilter(filter: any, areOptionsUpdated = false): void {
     if (!this.shouldApplyFilter) {
       return;
     };
     this.image.rotation.handleObjectAtAngle(
-      this.image.imageElement,
+      this.image.imageObject,
       () => {
         this.updateTmpCanvas();
 
         this.drawImageOnTmpCanvas(() => {
           this.applyFilter(filter);
+
           if (this.tmpCanvas) {
-            this.filteredImageDataURL = this.tmpCanvas.toDataURL();
-            this.setCanvasImage(this.filteredImageDataURL);
+            this.filteredImage = this.tmpCanvas.toDataURL();
+            !areOptionsUpdated && this.saveCommandToHistory();
+            this.setCanvasImage(this.filteredImage);
           }
         });
       },
@@ -39,24 +47,55 @@ export default class Filter {
     if (!this.shouldApplyFilter) {
       return;
     }
-    this.setCanvasImage(this.image.originalImage.src);
-    this.filteredImageDataURL = "";
+    this.setCanvasImage(this.image.imageElement.src);
+    this.filteredImage = "";
+    this.saveCommandToHistory();
   }
 
   public initialize(): void {
     this.shouldApplyFilter = true;
+    this.previousFilteredImage = this.image.imageElement.src;
   }
 
   public destroy(): void {
     this.shouldApplyFilter = false;
     imageStore.resetFilterState();
+    this.canvasAPI.history.removeCommands("filter");
+    this.saveFilter();
+    this.previousFilterName = "";
+  }
 
-    const image = new Image();
-    image.addEventListener("load", () => {
-      this.image.originalImage = image;
+  private saveCommandToHistory(): void {
+    this.canvasAPI.addCommandToHistory(
+      new FilterImageCommand(this.previousFilterName),
+    );
+  }
+
+  private saveFilter(): void {
+    this.image.updateImageElement(this.filteredImage, () => {
+      if (this.previousFilterName !== this.filteredImage) {
+        this.canvasAPI.addCommandToHistory(
+          new setImageCommand(
+            this.previousFilteredImage,
+            this.image.imageElement.src,
+            url => this.backToPreviousFilter(url),
+          ),
+        );
+      }
     });
-    image.src = this.filteredImageDataURL;
-    this.filteredImageDataURL = "";
+    this.filteredImage = "";
+  }
+
+  private backToPreviousFilter(url: string): void {
+    this.image.rotation.handleObjectAtAngle(
+      this.image.imageObject,
+      () => {
+        this.setCanvasImage(url, () => {
+          this.previousFilteredImage = url;
+          this.image.updateImageElement(url);
+        });
+      },
+    );
   }
 
   private updateTmpCanvas(): void {
@@ -80,7 +119,7 @@ export default class Filter {
       context.drawImage(img, 0, 0, width, height);
       onImageLoadCallback();
     });
-    img.src = this.image.originalImage.src;
+    img.src = this.image.imageElement.src;
   }
 
   private applyFilter(filter: any): void {
@@ -101,26 +140,28 @@ export default class Filter {
     }
   }
 
-  private setCanvasImage(url: string): void {
+  private setCanvasImage(url: string, callback?: () => void): void {
     const imageElement = new Image();
     imageElement.setAttribute("crossorigin", "anonymous");
     imageElement.addEventListener("load", () => {
-      if (!this.image.imageElement) {
+      if (!this.image.imageObject) {
         return;
       }
-      const image = this.image.imageElement.setElement(imageElement);
+      const image = this.image.imageObject.setElement(imageElement);
       this.image.adjustImage(image);
       image.center().setCoords();
       this.canvasAPI.canvas.renderAll();
 
+      callback && callback();
+      imageStore.updateImageFilteringStatus("success");
     });
     imageElement.src = url;
   }
 
   private getImageSize(): {width: number, height: number} {
     return {
-      width: this.image.imageElement?.width ?? 0,
-      height: this.image.imageElement?.height ?? 0,
+      width: this.image.imageObject?.width ?? 0,
+      height: this.image.imageObject?.height ?? 0,
     };
   }
 }

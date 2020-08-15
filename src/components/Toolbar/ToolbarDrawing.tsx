@@ -2,7 +2,7 @@ import React from "react";
 import { useObserver } from "mobx-react";
 import Slider from "../Slider";
 import ColorPicker from "../ColorPicker";
-import useStore from "../../helpers/useStore";
+import useStore from "../../hooks/useStore";
 import ToggleButton from "../ToggleButton";
 
 const ToolbarDrawing: React.FC = () => {

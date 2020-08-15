@@ -1,5 +1,5 @@
 import React from "react";
-import useStore from "../../helpers/useStore";
+import useStore from "../../hooks/useStore";
 import { ReactComponent as Left } from "../../assets/left.svg";
 import { ReactComponent as Right } from "../../assets/right.svg";
 import { ReactComponent as FlipX } from "../../assets/flipX.svg";
@@ -26,13 +26,13 @@ const ToolbarRotate: React.FC = () => {
           <p className="toolbar__option-title">Rotate right</p>
         </div>
         <div className="toolbar__option" onClick={() => {
-          imageStore.toggleFlipX();
+          imageStore.setFlipX(!imageStore.flipX);
         }}>
           <FlipX />
           <p className="toolbar__option-title">Flip X</p>
         </div>
         <div className="toolbar__option" onClick={() => {
-          imageStore.toggleFlipY();
+          imageStore.setFlipY(!imageStore.flipY);
         }}>
           <FlipY />
           <p className="toolbar__option-title">Flip Y</p>

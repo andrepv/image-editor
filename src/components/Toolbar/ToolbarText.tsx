@@ -10,7 +10,7 @@ import {ReactComponent as Trash } from "../../assets/trash.svg";
 import Slider from "../Slider";
 import ColorPicker from "../ColorPicker";
 import ToggleButton from "../ToggleButton";
-import useStore from "../../helpers/useStore";
+import useStore from "../../hooks/useStore";
 import { TextСonstants } from "../../stores/textStore";
 
 const ToolbarText: React.FC = () => {

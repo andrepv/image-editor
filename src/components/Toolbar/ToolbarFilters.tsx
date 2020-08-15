@@ -1,6 +1,6 @@
 import React from "react";
 import { useObserver } from "mobx-react";
-import useStore from "../../helpers/useStore";
+import useStore from "../../hooks/useStore";
 import Slider from "../Slider";
 import ToggleButton from "../ToggleButton";
 

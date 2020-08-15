@@ -6,8 +6,9 @@ export class SearchStore {
   @observable public totalPages: number = 0;
   @observable public isLoading: boolean = false;
   @observable public isError: boolean = false;
-  @observable public keyword: string = "beach";
+  @observable public keyword: string = "spain";
   @observable public isLoaded: boolean = false;
+  public selectedImageUrl: string = "";
 
   @action public setKeyword(keyword: string): void {
     this.keyword = keyword;
@@ -34,6 +35,10 @@ export class SearchStore {
     if (!this.isLoaded) {
       this.isLoaded = true;
     }
+  }
+
+  public setImageUrl(url: string): void {
+    this.selectedImageUrl = url;
   }
 }
 

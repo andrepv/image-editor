@@ -1,6 +1,8 @@
 import { fabric } from "fabric";
 import CanvasImage from "./Image";
 import CanvasAPI from "./CanvasAPI";
+import imageStore from "../stores/imageStore";
+import { FlipCommand } from "../command/flip";
 
 export default class Flip {
   private image: CanvasImage;
@@ -15,11 +17,18 @@ export default class Flip {
   public flipX(): void {
     this.axis = "x";
     this.flipEachObject();
+    this.canvasAPI.addCommandToHistory(
+      new FlipCommand(() => imageStore.setFlipX(!imageStore.flipX)),
+    );
   }
 
   public flipY(): void {
     this.axis = "y";
     this.flipEachObject();
+
+    this.canvasAPI.addCommandToHistory(
+      new FlipCommand(() => imageStore.setFlipY(!imageStore.flipY)),
+    );
   }
 
   private flipEachObject(): void {
@@ -27,8 +36,10 @@ export default class Flip {
       return;
     }
     this.canvasAPI.canvas.forEachObject(obj => this.flipObject(obj));
-    (this.image.imageElement as fabric.Image).center();
+    (this.image.imageObject as fabric.Image).center();
     this.canvasAPI.canvas.renderAll();
+
+    imageStore.updateImageFlippingStatus("success");
   }
 
   private flipObject(obj: any): void {

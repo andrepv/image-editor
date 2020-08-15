@@ -1,8 +1,8 @@
 import React from "react";
 
-import { ReactComponent as Save } from "../assets/save.svg";
-import Tooltip from "./Tooltip";
-import useStore from "../helpers/useStore";
+import { ReactComponent as Save } from "../../assets/save.svg";
+import Tooltip from "../Tooltip";
+import useStore from "../../hooks/useStore";
 
 const SaveButton: React.FC = () => {
   const { canvasStore } = useStore();
