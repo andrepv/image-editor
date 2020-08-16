@@ -10,13 +10,13 @@ import ZoomControl from "./components/ZoomControl";
 import useStore from "./hooks/useStore";
 
 const App: React.FC = () => {
-  const { toolbarStore } = useStore();
+  const { appStore } = useStore();
   return useObserver(() => (
-    <div className={`app ${toolbarStore.isOpen ? "toolbar_open": ""}`}>
+    <div className={`app ${appStore.isToolbarOpen ? "toolbar_open": ""}`}>
       <Header />
       <Menu />
       <TransitionGroup component={null}>
-        {toolbarStore.isOpen && (
+        {appStore.isToolbarOpen && (
           <CSSTransition
             timeout={600}
             classNames="toolbar"

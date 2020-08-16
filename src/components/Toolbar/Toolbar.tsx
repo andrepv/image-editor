@@ -10,7 +10,7 @@ import ToolbarFilters from "./ToolbarFilters";
 import ToolbarSearch from "./ToolbarSearch";
 
 const Toolbar: React.FC = () => {
-  const { toolbarStore, canvasStore } = useStore();
+  const { appStore, canvasStore } = useStore();
   const contentMap: any = {
     Search: <ToolbarSearch />,
     Crop: <ToolbarCrop />,
@@ -20,19 +20,19 @@ const Toolbar: React.FC = () => {
     Filters: <ToolbarFilters />,
   };
   const close = () => {
-    toolbarStore.close();
+    appStore.closeToolbar();
     canvasStore.setMode("");
   };
 
   return useObserver(() => (
     <section className={`toolbar ${
-      toolbarStore.type === "Search" ? "toolbar_search" : ""
+      appStore.type === "Search" ? "toolbar_search" : ""
       }`}>
       <div className="toolbar__header">
-        <h3 className="toolbar__title">{toolbarStore.type}</h3>
+        <h3 className="toolbar__title">{appStore.type}</h3>
         <Close onClick={close}/>
       </div>
-      {contentMap[toolbarStore.type]}
+      {contentMap[appStore.type]}
     </section>
   ));
 };

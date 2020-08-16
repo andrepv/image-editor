@@ -212,5 +212,14 @@ export default class CanvasImage {
       });
       shouldClearCanvas = false;
     }
-  })
+  });
+
+  private setDataUrl = autorun(() => {
+    let {shouldUpdateDataUrl} = imageStore;
+    if (shouldUpdateDataUrl) {
+      this.zoom(2);
+      imageStore.setDataUrl(this.canvasAPI.canvas.toDataURL());
+      this.zoom(1);
+    }
+  });
 }

@@ -17,13 +17,13 @@ interface IMenuItems {
 }
 
 const Menu: React.FC = () => {
-  const { toolbarStore, canvasStore, imageStore } = useStore();
+  const { appStore, canvasStore, imageStore } = useStore();
   const handleClick = (modeName: string) => {
     if (!imageStore.url && modeName !== "Search") {
       return;
     }
     imageStore.resetScale();
-    toolbarStore.toggle(modeName);
+    appStore.toggleToolbar(modeName);
     canvasStore.setMode(modeName.toLowerCase());
   };
   const items: IMenuItems[] = [
@@ -67,7 +67,7 @@ const Menu: React.FC = () => {
           <Tooltip key={index} content={tooltip} placement="right">
             <div
               className={`menu__item ${
-                toolbarStore.type === item.name ? "menu__item_active" : ""
+                appStore.type === item.name ? "menu__item_active" : ""
               }`}
               onClick={item.handler}
             >

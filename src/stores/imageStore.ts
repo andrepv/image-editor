@@ -11,10 +11,14 @@ export class ImageStore {
     name: "",
     options: [],
   });
-  @observable public imageLoadingStatus: string = "";
+  @observable public imageLoadingStatus: string = ""; // убрать image в названии
   @observable public imageFilteringStatus: string = "";
   @observable public imageFlippingStatus: string = "";
   @observable public shouldClearCanvas: boolean = false;
+
+  @observable public shouldUpdateDataUrl: boolean = false;
+  @observable public dataUrl: string = "";
+
   public shouldAddCommandsToHistory: boolean = true;
   public angleDiff: number = 0;
   public readonly zoomStep: number = 0.1;
@@ -149,6 +153,25 @@ export class ImageStore {
     await this.setUrl(url);
     this.resetFilterState();
     this.shouldClearCanvas = true;
+  }
+
+  @action public setDataUrl(value: string): void {
+    if (value) {
+      this.dataUrl = value;
+    }
+    if (this.shouldUpdateDataUrl) {
+      this.shouldUpdateDataUrl = false;
+    }
+  }
+
+  public async getDataUrl(): Promise<string> {
+    this.shouldUpdateDataUrl = true;
+    return new Promise((resolve, reject) => {
+      when(
+        () => this.shouldUpdateDataUrl === false,
+        () => resolve(this.dataUrl),
+      );
+    });
   }
 
   public preventAddingCommandsToHistory(): void {

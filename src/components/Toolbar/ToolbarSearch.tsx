@@ -12,7 +12,7 @@ export const ToolbarSearch: React.FC = () => {
   const {
     canvasStore,
     imageStore,
-    toolbarStore,
+    appStore,
     searchStore: search,
   } = useStore();
   const {
@@ -26,7 +26,7 @@ export const ToolbarSearch: React.FC = () => {
     const imageUrl = search.images[photos.index].url;
     commandHistory.clearHistory();
     imageStore.loadImage(imageUrl);
-    toolbarStore.close();
+    appStore.closeToolbar();
     canvasStore.setMode("");
     search.setImageUrl(imageUrl);
   };
