@@ -5,7 +5,7 @@ import useStore from "../../hooks/useStore";
 import { ReactComponent as Crop } from "../../assets/crop.svg";
 
 const ToolbarCrop: React.FC = () => {
-  const { cropperStore, canvasStore, appStore } = useStore();
+  const { cropperStore, appStore } = useStore();
   const [width, setWidth] = useState(cropperStore.cropZoneWidth);
   const [height, setHeight] = useState(cropperStore.cropZoneHeight);
 
@@ -80,7 +80,6 @@ const ToolbarCrop: React.FC = () => {
           className="toolbar__crop-btn"
           onClick={() => {
             cropperStore.crop(true);
-            canvasStore.setMode("");
             appStore.closeToolbar();
           }}
         >

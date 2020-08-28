@@ -3,11 +3,10 @@ import React, { useRef, ChangeEvent } from "react";
 import { ReactComponent as Upload } from "../../assets/upload.svg";
 import Tooltip from "../Tooltip";
 import useStore from "../../hooks/useStore";
-import { commandHistory } from "../../command/commandHistory";
 
 const UploadButton = () => {
   const inputFileRef = useRef<HTMLInputElement>(null);
-  const { imageStore, appStore, canvasStore, searchStore } = useStore();
+  const { imageStore, appStore } = useStore();
 
   const uploadImage = (event: ChangeEvent<HTMLInputElement>) => {
     const target = event.target as HTMLInputElement;
@@ -20,11 +19,8 @@ const UploadButton = () => {
     const reader = new FileReader();
     reader.onloadend = () => {
       const imageUrl = String(reader.result);
-      commandHistory.clearHistory();
       imageStore.loadImage(imageUrl);
       appStore.closeToolbar();
-      canvasStore.setMode("");
-      searchStore.setImageUrl(imageUrl); // поменять на appStore
     };
     reader.readAsDataURL(file);
   };

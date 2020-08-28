@@ -7,8 +7,8 @@ import { ReactComponent as Minus } from "../assets/minus.svg";
 import { useObserver } from "mobx-react";
 
 const ZoomControl: React.FC = () => {
-  const { canvasStore, imageStore } = useStore();
-  return useObserver(() => (imageStore.url && !canvasStore.mode) ? (
+  const { appStore, imageStore } = useStore();
+  return useObserver(() => (imageStore.url && !appStore.mode) ? (
     <div className="zoom">
       <button className="zoom-in" onClick={() => {
         imageStore.increaseScale();

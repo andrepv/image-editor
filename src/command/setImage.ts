@@ -1,19 +1,27 @@
 import { Command, CommandName } from "./commandHistory";
 
 export class setImageCommand implements Command {
-  public name: CommandName = "set_image";
+  name: CommandName = "set_image";
 
   constructor(
     private prevImageUrl: string,
     private imageUrl: string,
-    private setImage: (url: string) => void,
+    private setImage: (url: string) => Promise<void>,
   ) {}
 
-  public execute(): void {
-    this.setImage(this.imageUrl);
+  async execute(): Promise<void> {
+    try {
+      await this.setImage(this.imageUrl);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
-  public undo(): void {
-    this.setImage(this.prevImageUrl);
+  async undo(): Promise<void> {
+    try {
+      await this.setImage(this.prevImageUrl);
+    } catch (error) {
+      console.error(error);
+    }
   }
 }

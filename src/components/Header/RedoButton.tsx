@@ -2,21 +2,23 @@ import React from "react";
 import { useObserver } from "mobx-react";
 import Tooltip from "../Tooltip";
 import useStore from "../../hooks/useStore";
-import { commandHistory } from "../../command/commandHistory";
+import { history } from "../../command/commandHistory";
 import { ReactComponent as Redo } from "../../assets/redo.svg";
 
 export const RedoButton = () => {
-  const {canvasStore, imageStore} = useStore();
+  const {appStore} = useStore();
   return useObserver(() => (
     <div>
       <Tooltip content="Redo" placement="bottom">
         <Redo
-          className={`${
-            !canvasStore.isRedoCommandAvailable ? "disabled" : ""
-          }`}
-          onClick={() => {
-            imageStore.resetScale();
-            commandHistory.redo();
+          className={`${!appStore.canRedo ? "disabled" : ""}`}
+          onClick={async () => {
+            if (!appStore.canRedo) {
+              return;
+            }
+            appStore.isHistoryCommandExecuted = true;
+            await history.redo();
+            appStore.isHistoryCommandExecuted = false;
           }}
         />
       </Tooltip>

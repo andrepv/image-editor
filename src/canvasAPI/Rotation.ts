@@ -4,13 +4,10 @@ import CanvasAPI from "./CanvasAPI";
 import imageStore from "../stores/imageStore";
 
 export default class Rotation {
-  private image: CanvasImage;
-  private canvasAPI: CanvasAPI;
-
-  constructor(image: CanvasImage, canvasAPI: CanvasAPI) {
-    this.image = image;
-    this.canvasAPI = canvasAPI;
-  }
+  constructor(
+    private image: CanvasImage,
+    private canvasAPI: CanvasAPI,
+  ) {}
 
   public rotateEachObject(): void {
     if (!this.image.imageObject) {
@@ -19,6 +16,7 @@ export default class Rotation {
     const {x, y} = this.canvasAPI.getCanvasCenter();
     const prevCanvasCenter = new fabric.Point(x, y);
     this.image.setSize();
+
     this.canvasAPI.canvas.forEachObject(obj => {
       this.rotateObject(obj, prevCanvasCenter, imageStore.angleDiff);
     });

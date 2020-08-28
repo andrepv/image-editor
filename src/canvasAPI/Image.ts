@@ -5,6 +5,7 @@ import CanvasAPI from "./CanvasAPI";
 import Flip from "./Flip";
 import Filter from "./Filter";
 import Rotation from "./Rotation";
+import Scaling from "./Scale";
 import { RotationCommand } from "../command/rotation";
 
 export default class CanvasImage {
@@ -20,17 +21,18 @@ export default class CanvasImage {
   public flip: Flip;
   public filter: Filter;
   public rotation: Rotation;
-  private readonly canvasAPI: CanvasAPI;
+  public scaling: Scaling;
   public readonly IMAGE_OBJ_NAME: string = "image";
-  private scale: number = 1;
+  private prevBaseScale: number = 1;
 
-  constructor(canvasAPI: CanvasAPI) {
+  constructor(private readonly canvasAPI: CanvasAPI) {
     this.imageElement = new Image();
     this.imageElement.setAttribute("crossorigin", "anonymous");
-    this.canvasAPI = canvasAPI;
+
     this.flip = new Flip(this, canvasAPI);
     this.filter = new Filter(this, canvasAPI);
     this.rotation = new Rotation(this, canvasAPI);
+    this.scaling = new Scaling(this, canvasAPI);
   }
 
   public render() {
@@ -44,14 +46,18 @@ export default class CanvasImage {
 
   public initialize(): void {
     this.prevAngle = this.angle;
+    this.prevBaseScale = imageStore.baseScale;
   }
 
   public destroy(): void {
+    this.scaling.setBaseScale();
     if (this.prevAngle !== this.angle) {
-      this.canvasAPI.executeCommand(
+      this.canvasAPI.history.push(
         new RotationCommand(
           this.prevAngle,
           this.angle,
+          this.prevBaseScale,
+          imageStore.baseScale,
         ),
       );
     }
@@ -71,12 +77,13 @@ export default class CanvasImage {
     this.canvasAPI.canvas.clear();
     this.setSize();
     this.addImage();
+    this.scaling.setBaseScale();
   }
 
   private addImage(): void {
     this.imageObject = this.createImage();
     this.canvasAPI.canvas.add(this.imageObject);
-    imageStore.updateImageLoadingStatus("success");
+    imageStore.setLoadingStatus = "success";
   }
 
   private createImage(): fabric.Image {
@@ -105,7 +112,9 @@ export default class CanvasImage {
     this.canvasAPI.setCanvasSize(this.width, this.height);
   }
 
-  private getSize(scale = this.scale): {width: number; height: number} {
+  private getSize(
+    scale = this.scaling.scale,
+  ): {width: number; height: number} {
     const {
       width: originalWidth,
       height: originalHeight,
@@ -125,22 +134,19 @@ export default class CanvasImage {
     return {width, height};
   }
 
-  public zoom(scale: number): void {
-    this.scale = scale;
-    this.setSize();
-    this.canvasAPI.canvas.setZoom(scale);
-  }
-
   private updateFlip(callback: () => void): void {
     if (this.prevAngle !== this.angle) {
-      this.canvasAPI.executeCommand(
+      this.canvasAPI.history.push(
         new RotationCommand(
           this.prevAngle,
           this.angle,
+          this.prevBaseScale,
+          this.scaling.getBaseScale(),
         ),
       );
       this.prevAngle = this.angle;
     }
+
     callback();
 
     if (this.canvasAPI.mode === "crop") {
@@ -174,7 +180,7 @@ export default class CanvasImage {
 
   private updateScale = autorun(() => {
     const {scale} = imageStore;
-    this.zoom(scale);
+    this.scaling.setZoom(scale);
   });
 
   private updateFilter = autorun(() => {
@@ -199,27 +205,6 @@ export default class CanvasImage {
       this.filter.addFilter({name, options});
     } else {
       this.filter.removeFilter();
-    }
-  });
-
-  private removeAllObjects = autorun(() => {
-    let {shouldClearCanvas} = imageStore;
-    if (shouldClearCanvas) {
-      this.canvasAPI.canvas.forEachObject(obj => {
-        if (obj.name !== this.IMAGE_OBJ_NAME) {
-          this.canvasAPI.canvas.remove(obj);
-        }
-      });
-      shouldClearCanvas = false;
-    }
-  });
-
-  private setDataUrl = autorun(() => {
-    let {shouldUpdateDataUrl} = imageStore;
-    if (shouldUpdateDataUrl) {
-      this.zoom(2);
-      imageStore.setDataUrl(this.canvasAPI.canvas.toDataURL());
-      this.zoom(1);
     }
   });
 }

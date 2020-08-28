@@ -1,8 +1,8 @@
-import { Command, CommandName } from "./commandHistory";
-import imageStore from "../stores/imageStore";
+import {Command, CommandName} from "./commandHistory";
+import { disableHistoryRecording } from "../helpers/decorators";
 
 export class AddObjectToCanvasCommand implements Command {
-  public name: CommandName = "add_object";
+  name: CommandName = "add_object";
 
   constructor(
     private object: fabric.Object,
@@ -10,13 +10,12 @@ export class AddObjectToCanvasCommand implements Command {
     private removeObjFromCanvas: (object: fabric.Object) => void,
   ) {}
 
-  public execute(): void {
-    imageStore.preventAddingCommandsToHistory();
+  @disableHistoryRecording
+ async execute(): Promise<void> {
     this.addObjToCanvas(this.object);
-    setTimeout(() => imageStore.resumeAddingCommandsToHistory(), 500);
   }
 
-  public undo(): void {
+  async undo(): Promise<void> {
     this.removeObjFromCanvas(this.object);
   }
 }

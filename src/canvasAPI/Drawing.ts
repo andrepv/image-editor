@@ -1,6 +1,9 @@
 import { fabric } from "fabric";
 import { autorun } from "mobx";
 import drawingStore from "../stores/drawingStore";
+import CanvasAPI from "./CanvasAPI";
+import objectManagerStore from "../stores/objectManagerStore";
+import { ModeName } from "../stores/appStore";
 
 export default class Drawing {
   private listeners: any;
@@ -9,15 +12,16 @@ export default class Drawing {
   private isLineStraight: boolean = false;
   private width: number = 1;
   private color: string = drawingStore.color;
-  public readonly OBJ_NAME: string = "drawing";
+  public readonly OBJ_NAME: ModeName = "drawing";
 
-  constructor(canvas: fabric.Canvas) {
-    this.canvas = canvas;
+  constructor(private canvasAPI: CanvasAPI) {
+    this.canvas = canvasAPI.canvas;
     this.listeners = {
       onMouseDown: this.handleMouseDown.bind(this),
       onMouseMove: this.handleMouseMove.bind(this),
       onMouseUp: this.handleMouseUp.bind(this),
     };
+    this.canvasAPI.objectManager.registerObject(this.OBJ_NAME);
   }
 
   public initialize(): void {
@@ -26,7 +30,7 @@ export default class Drawing {
       this.canvas.freeDrawingBrush.color = this.color;
     } else {
       this.canvas.defaultCursor = "crosshair";
-      this.lockCanvasObjects();
+      this.canvasAPI.objectManager.lockObjects();
       this.canvas.on({
         "mouse:down": this.listeners.onMouseDown,
       });
@@ -37,17 +41,19 @@ export default class Drawing {
     this.canvas.isDrawingMode = false;
     if (this.isLineStraight) {
       this.canvas.defaultCursor = "default";
-      this.unlockCanvasObjects();
+      this.canvasAPI.objectManager.unlockObjects();
       this.canvas.off({
         "mouse:down": this.listeners.onMouseDown,
       });
     }
   }
 
-  public onAdded(obj: fabric.Object): void {
-    obj.set({
-      name: this.OBJ_NAME,
-    });
+  private onAdd(obj: fabric.Object): void {
+    if (obj) {
+      obj.set({
+        name: this.OBJ_NAME,
+      });
+    }
   }
 
   private handleMouseDown(event: fabric.IEvent): void {
@@ -89,24 +95,6 @@ export default class Drawing {
     });
   }
 
-  private lockCanvasObjects(): void {
-    // this.canvas.selection = false;
-    this.canvas.forEachObject(obj => {
-      obj.set({
-        evented: false,
-      });
-    });
-  }
-
-  private unlockCanvasObjects(): void {
-    // this.canvas.selection = true;
-    this.canvas.forEachObject(obj => {
-      obj.set({
-        evented: true,
-      });
-    });
-  }
-
   private updateColor = autorun(() => {
     const {color} = drawingStore;
     this.color = color;
@@ -124,5 +112,16 @@ export default class Drawing {
     this.destroy();
     this.isLineStraight = isLineStraight;
     this.initialize();
+  });
+
+  private afterRemove = autorun(() => {
+    const {notification} = objectManagerStore;
+    if (this.canvasAPI.mode !== "drawing") {
+      return;
+    }
+    if (notification.type === "obj_added") {
+      this.onAdd(notification.data);
+      objectManagerStore.resetNotification();
+    }
   });
 }

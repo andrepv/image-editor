@@ -1,30 +1,35 @@
 import { observable, action, when } from "mobx";
 import defaultFilterOptions from "../helpers/defaultFilterOptions";
+import { history } from "../command/commandHistory";
+import { disableHistoryRecording } from "../helpers/decorators";
+
+type Status = "pending" | "success";
 
 export class ImageStore {
-  @observable public url: string = "";
-  @observable public scale: number = 1;
-  @observable public angle: number = 0;
-  @observable public flipX: boolean = false;
-  @observable public flipY: boolean = false;
-  @observable public filter: any = observable({
+  @observable url: string = "";
+  @observable scale: number = 1;
+  @observable angle: number = 0;
+  @observable flipX: boolean = false;
+  @observable flipY: boolean = false;
+  @observable filter: any = observable({
     name: "",
     options: [],
   });
-  @observable public imageLoadingStatus: string = ""; // убрать image в названии
-  @observable public imageFilteringStatus: string = "";
-  @observable public imageFlippingStatus: string = "";
-  @observable public shouldClearCanvas: boolean = false;
+  @observable clearCanvas: boolean = false;
+  @observable updateDataUrl: boolean = false;
 
-  @observable public shouldUpdateDataUrl: boolean = false;
-  @observable public dataUrl: string = "";
+  @observable private loadingStatus: Status = "success";
+  @observable private filteringStatus: Status = "success";
+  @observable private flippingStatus: Status = "success";
 
-  public shouldAddCommandsToHistory: boolean = true;
-  public angleDiff: number = 0;
-  public readonly zoomStep: number = 0.1;
-  public readonly angleStep: number = 90;
+  originalImageUrl: string = "";
+  baseScale: number = 0;
+  angleDiff: number = 0;
+  private dataUrl: string = "";
+  private readonly zoomStep: number = 0.1;
+  private readonly angleStep: number = 90;
 
-  @action public async setUrl(url: string): Promise<void> {
+  @action async setUrl(url: string): Promise<void> {
     if (url === this.url) {
       return Promise.reject();
     }
@@ -33,18 +38,22 @@ export class ImageStore {
       await this.resetState();
     }
 
-    this.preventAddingCommandsToHistory();
-    this.updateImageLoadingStatus("pending");
+    history.disableRecording();
+    this.setLoadingStatus = "pending";
     this.url = url;
-    when(
-      () => this.imageLoadingStatus === "success",
-      () => this.resumeAddingCommandsToHistory(),
-    );
 
-    return when(() => this.imageLoadingStatus === "success");
+    return new Promise(resove => {
+      when(
+        () => this.loadingStatus === "success",
+        () => {
+          history.enableRecording();
+          resove();
+        },
+      );
+    });
   }
 
-  @action public rotateRight(): void {
+  @action rotateRight(): void {
     let nextAngle = this.angle + this.angleStep;
     if (nextAngle > 360) {
       nextAngle -= 360;
@@ -52,7 +61,7 @@ export class ImageStore {
     this.setAngle(nextAngle);
   }
 
-  @action public rotateLeft(): void {
+  @action rotateLeft(): void {
     let nextAngle = this.angle - this.angleStep;
     if (nextAngle < -360) {
       nextAngle += 360;
@@ -60,52 +69,61 @@ export class ImageStore {
     this.setAngle(nextAngle);
   }
 
-  @action public setAngle(angle: number): void {
+  @action setAngle(angle: number): void {
     this.angleDiff = angle - this.angle;
     this.angle = angle;
   }
 
-  @action public async setFlipX(value: boolean): Promise<void> {
+  @action setFlipX(value: boolean): Promise<void> {
     if (this.flipX === value) {
       return Promise.resolve();
     }
-    this.updateImageFlippingStatus("pending");
+    this.setFlippingStatus = "pending";
     this.flipX = value;
-    return when(() => this.imageFlippingStatus === "success");
+    return when(() => this.flippingStatus === "success");
   }
 
-  @action public async setFlipY(value: boolean): Promise<void> {
+  @action setFlipY(value: boolean): Promise<void> {
     if (this.flipY === value) {
       return Promise.resolve();
     }
-    this.updateImageFlippingStatus("pending");
+    this.setFlippingStatus = "pending";
     this.flipY = value;
-    return when(() => this.imageFlippingStatus === "success");
+    return when(() => this.flippingStatus === "success");
   }
 
-  @action public increaseScale(): void {
+  @action increaseScale(): void {
     if (this.scale >= 2) {
       return;
     }
     this.scale += this.zoomStep;
   }
 
-  @action public decreaseScale(): void {
+  @action decreaseScale(): void {
     if (this.scale <= 0.5) {
       return;
     }
     this.scale -= this.zoomStep;
   }
 
-  @action public resetScale(): void {
-    this.scale = 1;
+  @action setScale(value: number): void {
+    this.scale = value;
   }
 
-  @action public async addFilter(filterName: string): Promise<void> {
-    if (this.imageFilteringStatus === "pending") {
-      return Promise.reject("filter is loading");
+  @action setBaseScale(value: number): void {
+    this.baseScale = value;
+    this.setScale(value);
+  }
+
+  @action resetToBaseScale(): void {
+    this.scale = this.baseScale;
+  }
+
+  @action addFilter(filterName: string): Promise<void> {
+    if (this.filteringStatus === "pending") {
+      return Promise.reject();
     }
-    this.updateImageFilteringStatus("pending");
+    this.setFilteringStatus = "pending";
     if (this.filter.name === filterName) {
       this.resetFilterState();
     } else {
@@ -114,10 +132,10 @@ export class ImageStore {
         options: defaultFilterOptions[filterName] || [],
       };
     }
-    return when(() => this.imageFilteringStatus === "success");
+    return when(() => this.filteringStatus === "success");
   }
 
-  @action public updateFilterOption(
+  @action updateFilterOption(
     optionName: string,
     newValue: number,
   ): void {
@@ -129,66 +147,62 @@ export class ImageStore {
     });
   }
 
-  @action public resetFilterState(): void {
+  @action resetFilterState(): void {
     this.filter = {
       name: "",
       options: [],
     };
   }
 
-  @action public updateImageLoadingStatus(status: string): void {
-    this.imageLoadingStatus = status;
+  @action async loadImage(url: string): Promise<void> {
+    try {
+      await this.setUrl(" ");
+      this.originalImageUrl  url;
+      history.clear();
+      this.clearCanvas = true;
+      this.setUrl(url);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
-  @action public updateImageFilteringStatus(status: string): void {
-    this.imageFilteringStatus = status;
-  }
-
-  @action public updateImageFlippingStatus(status: string): void {
-    this.imageFlippingStatus = status;
-  }
-
-  @action public async loadImage(url: string): Promise<void> {
-    await this.setUrl(" ");
-    await this.setUrl(url);
-    this.resetFilterState();
-    this.shouldClearCanvas = true;
-  }
-
-  @action public setDataUrl(value: string): void {
+  @action setDataUrl(value: string): void {
     if (value) {
       this.dataUrl = value;
     }
-    if (this.shouldUpdateDataUrl) {
-      this.shouldUpdateDataUrl = false;
+    if (this.updateDataUrl) {
+      this.updateDataUrl = false;
     }
   }
 
-  public async getDataUrl(): Promise<string> {
-    this.shouldUpdateDataUrl = true;
-    return new Promise((resolve, reject) => {
+ getDataUrl(): Promise<string> {
+    this.updateDataUrl = true;
+    return new Promise(resolve => {
       when(
-        () => this.shouldUpdateDataUrl === false,
+        () => this.updateDataUrl === false,
         () => resolve(this.dataUrl),
       );
     });
   }
 
-  public preventAddingCommandsToHistory(): void {
-    this.shouldAddCommandsToHistory = false;
+  set setLoadingStatus(status: Status) {
+    this.loadingStatus = status;
   }
 
-  public resumeAddingCommandsToHistory(): void {
-    this.shouldAddCommandsToHistory = true;
+  set setFilteringStatus(status: Status) {
+    this.filteringStatus = status;
   }
 
+  set setFlippingStatus(status: Status) {
+    this.flippingStatus = status;
+  }
+
+  @disableHistoryRecording
   private async resetState(): Promise<void> {
-    this.preventAddingCommandsToHistory();
-    this.resetScale();
+    this.setBaseScale(1);
     this.setAngle(0);
     await this.setFlipX(false);
     await this.setFlipY(false);
-    this.resumeAddingCommandsToHistory();
   }
 }
 

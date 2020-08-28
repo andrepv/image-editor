@@ -1,29 +1,43 @@
 import { observable, action } from "mobx";
 
-export class AppStore {
-  @observable public isToolbarOpen: boolean = false;
-  @observable public type: string = "";
+export type ModeName = (
+  "search" | "crop" | "rotate" | "drawing" | "text" | "filters" | ""
+);
 
-  @action public toggleToolbar(type: string): void {
-    if (this.type === type || !this.isToolbarOpen) {
+export class AppStore {
+  @observable isToolbarOpen: boolean = false;
+  @observable canUndo: boolean = false;
+  @observable canRedo: boolean = false;
+  @observable mode: ModeName = "";
+  isHistoryCommandExecuted: boolean = false;
+
+  @action toggleToolbar(mode: ModeName): void {
+    if (this.mode === mode || !this.isToolbarOpen) {
       this.isToolbarOpen = !this.isToolbarOpen;
     }
-    this.toggleType(type);
+    this.setMode(mode);
   }
 
-  @action public closeToolbar(): void {
+  @action closeToolbar(): void {
     this.isToolbarOpen = false;
-    this.type = "";
+    this.mode = "";
   }
 
-  public toggleType(type: string): void {
-    if (this.type === type) {
-      this.type = "";
+  @action updateHistoryButtons(
+    canUndo: boolean,
+    canRedo: boolean,
+  ): void {
+    this.canUndo = canUndo;
+    this.canRedo = canRedo;
+  }
+
+  @action setMode(modeName: ModeName) {
+    if (modeName === this.mode) {
+      this.mode = "";
       return;
     }
-    this.type = type;
+    this.mode = modeName;
   }
 }
 
-const appStore = new AppStore();
-export default appStore;
+export default new AppStore();

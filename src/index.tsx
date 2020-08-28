@@ -5,23 +5,23 @@ import "./styles/main.scss";
 import App from "./App";
 
 import * as serviceWorker from "./serviceWorker";
-import canvasStore from "./stores/canvasStore";
 import cropperStore from "./stores/cropperStore";
 import imageStore from "./stores/imageStore";
 import drawingStore from "./stores/drawingStore";
 import textStore from "./stores/textStore";
 import searchStore from "./stores/searchStore";
 import appStore from "./stores/appStore";
+import objectManagerStore from "./stores/objectManagerStore";
 import { StoreProvider } from "./helpers/storeProvider";
 
 const stores = {
-  canvasStore,
   cropperStore,
   imageStore,
   drawingStore,
   textStore,
   searchStore,
   appStore,
+  objectManagerStore,
 };
 
 ReactDOM.render(

@@ -1,27 +1,27 @@
 import { observable, action } from "mobx";
 
 export class DrawingStore {
-  @observable public opacity: number = 1;
-  @observable public colorCode: string = "61, 61, 61";
-  @observable public color: string = this.getColor();
-  @observable public lineWidth: number = 1;
-  @observable public isLineStraight: boolean = false;
+  @observable opacity: number = 1;
+  @observable colorCode: string = "61, 61, 61";
+  @observable color: string = this.getColor();
+  @observable lineWidth: number = 1;
+  @observable isLineStraight: boolean = false;
 
-  @action public setColorCode(colorCode: string): void {
+  @action setColorCode(colorCode: string): void {
     this.colorCode = colorCode;
     this.color = this.getColor();
   }
 
-  @action public setLineWidth(value: number): void {
+  @action setLineWidth(value: number): void {
     this.lineWidth = value;
   }
 
-  @action public setOpacity(value: number): void {
+  @action setOpacity(value: number): void {
     this.opacity = value;
     this.color = this.getColor();
   }
 
-  @action public toggleFreeDrawingMode(): void {
+  @action toggleFreeDrawingMode(): void {
     this.isLineStraight = !this.isLineStraight;
   }
 

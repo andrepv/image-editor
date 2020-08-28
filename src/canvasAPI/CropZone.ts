@@ -335,7 +335,7 @@ export default class CropZone {
     if (cropperStore.shouldCrop) {
       this.rendering.removeAll();
       const ratio = this.getImagesAspectRatio();
-      this.canvasAPI.image.zoom(ratio);
+      this.canvasAPI.image.scaling.setZoom(ratio);
 
       const croppedImageUrl = this.canvasAPI.canvas.toDataURL({
         left: this.left * ratio,
@@ -343,14 +343,14 @@ export default class CropZone {
         width: this.width * ratio,
         height: this.height * ratio,
       });
-      this.canvasAPI.image.zoom(1);
-      this.canvasAPI.executeCommand(
-        new CropCommand(
-          croppedImageUrl,
-          this.canvasAPI.image.imageElement.src,
-          this.canvasAPI.canvas.getObjects(),
-        ),
+      this.canvasAPI.image.scaling.setZoom(1);
+      const cropCommand = new CropCommand(
+        croppedImageUrl,
+        this.canvasAPI.image.imageElement.src,
+        this.canvasAPI.canvas.getObjects(),
       );
+      this.canvasAPI.history.push(cropCommand);
+      cropCommand.execute();
       cropperStore.crop(false);
     }
   });

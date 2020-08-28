@@ -14,7 +14,7 @@ import useStore from "../../hooks/useStore";
 import { TextСonstants } from "../../stores/textStore";
 
 const ToolbarText: React.FC = () => {
-  const { textStore } = useStore();
+  const { textStore, objectManagerStore } = useStore();
   const options = [
     {
       icon:  <Bold />,
@@ -112,7 +112,7 @@ const ToolbarText: React.FC = () => {
             callback={rgbCode => textStore.setBackgroundColor(rgbCode)}
           />
         )}
-        <p onClick={() => textStore.removeText()}>Remove <Trash/></p>
+        <p onClick={() => objectManagerStore.deleteSelectedObject()}>Remove <Trash/></p>
         </>
       ) : null}
     </div>

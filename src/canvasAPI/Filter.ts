@@ -66,7 +66,7 @@ export default class Filter {
   }
 
   private saveCommandToHistory(): void {
-    this.canvasAPI.addCommandToHistory(
+    this.canvasAPI.history.push(
       new FilterImageCommand(this.previousFilterName),
     );
   }
@@ -74,7 +74,7 @@ export default class Filter {
   private saveFilter(): void {
     this.image.updateImageElement(this.filteredImage, () => {
       if (this.previousFilterName !== this.filteredImage) {
-        this.canvasAPI.addCommandToHistory(
+        this.canvasAPI.history.push(
           new setImageCommand(
             this.previousFilteredImage,
             this.image.imageElement.src,
@@ -86,16 +86,19 @@ export default class Filter {
     this.filteredImage = "";
   }
 
-  private backToPreviousFilter(url: string): void {
-    this.image.rotation.handleObjectAtAngle(
-      this.image.imageObject,
-      () => {
-        this.setCanvasImage(url, () => {
-          this.previousFilteredImage = url;
-          this.image.updateImageElement(url);
-        });
-      },
-    );
+  private backToPreviousFilter(url: string): Promise<void> {
+    return new Promise((resolve) => {
+      this.image.rotation.handleObjectAtAngle(
+        this.image.imageObject,
+        () => {
+          this.setCanvasImage(url, () => {
+            this.previousFilteredImage = url;
+            this.image.updateImageElement(url);
+            resolve();
+          });
+        },
+      );
+    });
   }
 
   private updateTmpCanvas(): void {
@@ -147,13 +150,19 @@ export default class Filter {
       if (!this.image.imageObject) {
         return;
       }
+      this.canvasAPI.canvas.setZoom(1);
       const image = this.image.imageObject.setElement(imageElement);
+      if (!image) {
+        return;
+      }
       this.image.adjustImage(image);
-      image.center().setCoords();
+      // image.center().setCoords();
+      image.scale((image?.scaleX ?? 1) / this.image.scaling.scale);
+      this.canvasAPI.canvas.setZoom(this.image.scaling.scale);
       this.canvasAPI.canvas.renderAll();
 
       callback && callback();
-      imageStore.updateImageFilteringStatus("success");
+      imageStore.setFilteringStatus = "success";
     });
     imageElement.src = url;
   }

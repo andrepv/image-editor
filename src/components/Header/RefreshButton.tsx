@@ -3,10 +3,9 @@ import { useObserver } from "mobx-react";
 import Tooltip from "../Tooltip";
 import { ReactComponent as Refresh } from "../../assets/refresh.svg";
 import useStore from "../../hooks/useStore";
-import { commandHistory } from "../../command/commandHistory";
 
 export const RefreshButton = () => {
-  const {canvasStore, imageStore, searchStore, appStore} = useStore();
+  const {imageStore, appStore} = useStore();
   return useObserver(() => (
     <div>
       <Tooltip content="Refresh" placement="bottom">
@@ -16,10 +15,8 @@ export const RefreshButton = () => {
             if (!imageStore.url) {
               return;
             }
+            imageStore.loadImage(imageStore.originalImageUrl);
             appStore.closeToolbar();
-            canvasStore.setMode("");
-            commandHistory.clearHistory();
-            imageStore.loadImage(searchStore.selectedImageUrl);
           }}
         />
       </Tooltip>

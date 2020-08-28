@@ -8,55 +8,67 @@ import { ReactComponent as Search } from "../assets/search.svg";
 import Tooltip from "./Tooltip";
 import useStore from "../hooks/useStore";
 import { useObserver } from "mobx-react";
+import { ModeName } from "../stores/appStore";
 
 interface IMenuItems {
   icon: React.ReactElement;
-  name: string;
+  name: ModeName;
   handler: () => void;
   tooltip?: string;
 }
 
 const Menu: React.FC = () => {
-  const { appStore, canvasStore, imageStore } = useStore();
-  const handleClick = (modeName: string) => {
-    if (!imageStore.url && modeName !== "Search") {
+  const { appStore, imageStore } = useStore();
+
+  const handleClick = (modeName: ModeName) => {
+    if (!imageStore.url && modeName !== "search") {
       return;
     }
-    imageStore.resetScale();
+
     appStore.toggleToolbar(modeName);
-    canvasStore.setMode(modeName.toLowerCase());
+
+    if (appStore.mode && imageStore.scale !== 1) {
+      if (appStore.mode !== "search") {
+        imageStore.setScale(1);
+      }
+    }
+
+    if (!appStore.mode) {
+      imageStore.resetToBaseScale();
+    }
   };
+
   const items: IMenuItems[] = [
     {
       icon: <Search />,
-      name: "Search",
-      handler: () => handleClick("Search"),
+      name: "search",
+      handler: () => handleClick("search"),
       tooltip: "Upload an image from Unsplash",
     },
     {
       icon: <Crop />,
-      name: "Crop",
-      handler: () => handleClick("Crop"),
+      name: "crop",
+      handler: () => handleClick("crop"),
     },
     {
       icon: <Flip />,
-      name: "Rotate",
-      handler: () => handleClick("Rotate"),
+      name: "rotate",
+      handler: () => handleClick("rotate"),
     },
     {
       icon: <Draw />,
-      name: "Draw",
-      handler: () => handleClick("Draw"),
+      name: "drawing",
+      handler: () => handleClick("drawing"),
     },
     {
       icon: <Text />,
-      name: "Text",
-      handler: () => handleClick("Text"),
+      name: "text",
+      handler: () => handleClick("text"),
     },
     {
       icon: <Filter />,
-      name: "Filters",
-      handler: () => handleClick("Filters"),
+      name: "filters",
+      handler: () => handleClick("filters"),
     },
   ];
   return useObserver(() => (
@@ -67,7 +79,7 @@ const Menu: React.FC = () => {
           <Tooltip key={index} content={tooltip} placement="right">
             <div
               className={`menu__item ${
-                appStore.type === item.name ? "menu__item_active" : ""
+                appStore.mode === item.name ? "menu__item_active" : ""
               }`}
               onClick={item.handler}
             >

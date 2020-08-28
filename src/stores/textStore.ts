@@ -10,77 +10,77 @@ export enum TextСonstants {
 };
 
 export class TextStore {
-  @observable public isTextControlHidden: boolean = false;
-  @observable public shouldAddText: boolean = false;
-  @observable public shouldRemoveText: boolean = false;
-  @observable public fontWeight: string = "normal";
-  @observable public underline: boolean = false;
-  @observable public fontStyle: string = "normal";
-  @observable public textAlign: string = "left";
-  @observable public fontSizeIndicator: number = TextСonstants.INIT_FONT_SIZE;
-  @observable public fontSize: number = TextСonstants.INIT_FONT_SIZE;
-  @observable public lineHeight: number = TextСonstants.MIN_LINE_HEIGHT;
-  @observable public fontColorCode: string = "61, 61, 61";
-  @observable public fontColor: string = `rgb(${this.fontColorCode})`;
-  @observable public isBackgroundTransparent: boolean = true;
-  @observable public backgroundColorCode: string = "255, 255, 255";
+  @observable isTextControlHidden: boolean = false;
+  @observable shouldAddText: boolean = false;
+  @observable shouldRemoveText: boolean = false;
+  @observable fontWeight: string = "normal";
+  @observable underline: boolean = false;
+  @observable fontStyle: string = "normal";
+  @observable textAlign: string = "left";
+  @observable fontSizeIndicator: number = TextСonstants.INIT_FONT_SIZE;
+  @observable fontSize: number = TextСonstants.INIT_FONT_SIZE;
+  @observable lineHeight: number = TextСonstants.MIN_LINE_HEIGHT;
+  @observable fontColorCode: string = "61, 61, 61";
+  @observable fontColor: string = `rgb(${this.fontColorCode})`;
+  @observable isBackgroundTransparent: boolean = true;
+  @observable backgroundColorCode: string = "255, 255, 255";
 
-  @action public addText(): void {
+  @action addText(): void {
     this.shouldAddText = true;
   }
 
-  @action public removeText(): void {
+  @action removeText(): void {
     this.shouldRemoveText = true;
   }
 
-  @action public setFontWeight(value: string): void {
+  @action setFontWeight(value: string): void {
     this.fontWeight = value;
   }
 
-  @action public setTextDecoration(value: boolean): void {
+  @action setTextDecoration(value: boolean): void {
     this.underline = value;
   }
 
-  @action public setFontStyle(value: string): void {
+  @action setFontStyle(value: string): void {
     this.fontStyle = value;
   }
 
-  @action public setTextAlign(type: string): void {
+  @action setTextAlign(type: string): void {
     this.textAlign = type;
   }
 
-  @action public setFontSize(value: number | undefined): void {
+  @action setFontSize(value: number | undefined): void {
     if (!value) {
       return;
     }
     this.fontSize = value as number;
   }
 
-  @action public updateFontSizeIndicator(value: number): void {
+  @action updateFontSizeIndicator(value: number): void {
     this.fontSizeIndicator = value;
   }
 
-  @action public setLineHeight(value: number | undefined): void {
+  @action setLineHeight(value: number | undefined): void {
     if (!value) {
       return;
     }
     this.lineHeight = value as number;
   }
 
-  @action public setFontColor(rgbCode: string): void {
+  @action setFontColor(rgbCode: string): void {
     this.fontColorCode = rgbCode;
     this.fontColor = `rgb(${rgbCode})`;
   }
 
-  @action public setBackgroundTransparency(value: boolean): void {
+  @action setBackgroundTransparency(value: boolean): void {
     this.isBackgroundTransparent = value;
   }
 
-  @action public setBackgroundColor(rgbCode: string): void {
+  @action setBackgroundColor(rgbCode: string): void {
     this.backgroundColorCode = rgbCode;
   }
 
-  @action public resetToDefault(): void {
+  @action resetToDefault(): void {
     this.fontWeight = "normal";
     this.underline = false;
     this.fontStyle = "normal";
@@ -94,11 +94,11 @@ export class TextStore {
     this.isBackgroundTransparent = true;
   }
 
-  public set isTextSelected(value: boolean) {
+  set isTextSelected(value: boolean) {
     this.isTextControlHidden = value;
   }
 
-  public toggleFontWeight(): void {
+  toggleFontWeight(): void {
     if (this.fontWeight === "normal") {
       this.setFontWeight("bold");
       return;
@@ -106,11 +106,11 @@ export class TextStore {
     this.setFontWeight("normal");
   }
 
-  public toggleTextDecoration(): void {
+  toggleTextDecoration(): void {
     this.setTextDecoration(!this.underline);
   }
 
-  public toggleFontStyle(): void {
+  toggleFontStyle(): void {
     if (this.fontStyle === "normal") {
       this.setFontStyle("italic");
       return;
@@ -118,7 +118,7 @@ export class TextStore {
     this.setFontStyle("normal");
   }
 
-  public toggleBackgroundTransparency(): void {
+  toggleBackgroundTransparency(): void {
     this.setBackgroundTransparency(!this.isBackgroundTransparent);
   }
 }

@@ -2,8 +2,8 @@ import { autorun } from "mobx";
 import { fabric } from "fabric";
 import textStore, { TextСonstants } from "../stores/textStore";
 import CanvasAPI from "./CanvasAPI";
-import { RemoveObjectFromCanvasCommand } from "../command/removeObject";
-import { AddObjectToCanvasCommand } from "../command/addObject";
+import objectManagerStore from "../stores/objectManagerStore";
+import { ModeName } from "../stores/appStore";
 
 interface IText extends fabric.IText {
   fontColorCode: string;
@@ -17,76 +17,39 @@ export default class Text {
   private canvas: fabric.Canvas;
   private selectedText: any;
   private listeners: any;
-  public readonly OBJ_NAME: string = "text";
+  public readonly OBJ_NAME: ModeName = "text";
 
   constructor(canvasAPI: CanvasAPI) {
     this.canvasAPI = canvasAPI;
     this.canvas = canvasAPI.canvas;
     this.selectedText = new fabric.IText("") as IText;
     this.listeners = {
-      onMouseDown: this.onMouseDown.bind(this),
       onObjectScaling: this.onObjectScaling.bind(this),
-      onObjectRemoving: this.onObjectRemoving.bind(this),
     };
+    this.canvasAPI.objectManager.registerObject(this.OBJ_NAME);
   }
 
   public initialize(): void {
-    this.canvas.discardActiveObject().renderAll();
-    this.canvasAPI.deselectObject();
     this.addEventListeners();
-    this.lockCanvasObjects();
+    this.canvas.discardActiveObject().renderAll();
+    this.canvasAPI.objectManager.deselectObject();
+    this.canvasAPI.objectManager.lockObjects([this.OBJ_NAME]);
   }
 
   public destroy(): void {
     this.removeEventListeners();
-    this.unlockCanvasObjects();
     this.canvas.discardActiveObject().renderAll();
     textStore.isTextSelected = false;
-    this.canvasAPI.deselectObject();
-  }
-
-  private lockCanvasObjects(): void {
-    this.canvas.forEachObject(obj => {
-      if (obj.name !== this.OBJ_NAME) {
-        obj.set({
-          evented: false,
-        });
-      }
-    });
-  }
-
-  private unlockCanvasObjects(): void {
-    this.canvas.forEachObject(obj => {
-      obj.set({
-        evented: true,
-      });
-    });
+    this.canvasAPI.objectManager.deselectObject();
+    this.canvasAPI.objectManager.unlockObjects();
   }
 
   private addEventListeners(): void {
-    this.canvas.on("mouse:down", this.listeners.onMouseDown);
     this.canvas.on("object:scaling", this.listeners.onObjectScaling);
-    this.canvas.on("object:removed", this.listeners.onObjectRemoving);
   }
 
   private removeEventListeners(): void {
-    this.canvas.off("mouse:down", this.listeners.onMouseDown);
     this.canvas.off("object:scaling", this.listeners.onObjectScaling);
-    this.canvas.off("object:removed", this.listeners.onObjectRemoving);
-  }
-
-  private onMouseDown(event: fabric.IEvent): void {
-    const {target} = event;
-    const name = target?.name;
-    if (!name || name !== this.OBJ_NAME) {
-      if (this.selectedText) {
-        textStore.isTextSelected = false;
-      }
-      return;
-    }
-    this.selectedText = target as IText;
-    textStore.isTextSelected = true;
-    this.updateStore();
   }
 
   private updateStore(): void {
@@ -140,41 +103,56 @@ export default class Text {
     return text;
   }
 
-  public onObjectRemoving(): void {
+  private onDelete(): void {
     textStore.isTextSelected = false;
   }
 
-  private addTextToHistory(): void {
-    const addObjCommand = new AddObjectToCanvasCommand(
-      this.selectedText,
-      (object: fabric.Object) => this.canvas.add(object),
-      (object: fabric.Object) => this.canvas.remove(object),
-    );
-    this.canvasAPI.addCommandToHistory(addObjCommand);
+  private onAdded(): void {
+    textStore.resetToDefault();
+    this.selectedText = this.createText();
+    this.canvas.add(this.selectedText);
+    this.selectedText.center().setCoords();
+    this.canvas.setActiveObject(this.selectedText);
+    textStore.isTextSelected = true;
+    this.canvasAPI.objectManager.selectObject(this.selectedText);
   }
 
-  private removeTextFromHistory(): void {
-    this.canvasAPI.addCommandToHistory(
-      new RemoveObjectFromCanvasCommand(
-        this.selectedText,
-        (object: fabric.Object) => this.canvas.add(object),
-        (object: fabric.Object) => this.canvas.remove(object),
-      ),
-    );
+  private onSelect(target: fabric.Object): void {
+    this.selectedText = target as IText;
+    textStore.isTextSelected = true;
+    this.updateStore();
   }
+
+  private onDeselect(): void {
+    textStore.isTextSelected = false;
+  }
+
+  private onToggleSelection = autorun(() => {
+    const {selectedObject} = objectManagerStore;
+    if (this.canvasAPI.mode !== "text") {
+      return;
+    }
+    if (selectedObject) {
+      this.onSelect(selectedObject);
+    } else {
+      this.onDeselect();
+    }
+  });
+
+  private reactToDeletion = autorun(() => {
+    const {notification} = objectManagerStore;
+    if (this.canvasAPI.mode !== "text") {
+      return;
+    }
+    if (notification.type === "obj_removed") {
+      this.onDelete();
+    }
+  });
 
   private addText = autorun(() => {
     const {shouldAddText} = textStore;
     if (shouldAddText) {
-      textStore.resetToDefault();
-      this.selectedText = this.createText();
-      this.canvas.add(this.selectedText);
-      this.selectedText.center().setCoords();
-      this.canvas.setActiveObject(this.selectedText);
-      textStore.isTextSelected = true;
-      this.canvasAPI.selectObject(this.selectedText);
-
-      this.addTextToHistory();
+      this.onAdded();
     }
     textStore.shouldAddText = false;
   });
@@ -234,19 +212,6 @@ export default class Text {
     });
     this.canvas.renderAll();
   });
-
-  private removeText = autorun(() => {
-    const {shouldRemoveText} = textStore;
-    if (shouldRemoveText) {
-      this.canvas.remove(this.selectedText);
-      this.canvas.renderAll();
-      this.canvasAPI.deselectObject();
-
-      this.removeTextFromHistory();
-    }
-    textStore.shouldRemoveText = false;
-  });
-
 
   private onObjectScaling(event: fabric.IEvent): void {
     const target = event.target as IText;

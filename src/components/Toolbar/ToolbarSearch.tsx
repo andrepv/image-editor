@@ -6,11 +6,9 @@ import { ReactComponent as Search } from "../../assets/search2.svg";
 import { ReactComponent as Loader } from "../../assets/loader.svg";
 import useStore from "../../hooks/useStore";
 import { useObserver } from "mobx-react";
-import { commandHistory } from "../../command/commandHistory";
 
 export const ToolbarSearch: React.FC = () => {
   const {
-    canvasStore,
     imageStore,
     appStore,
     searchStore: search,
@@ -24,11 +22,8 @@ export const ToolbarSearch: React.FC = () => {
 
   const handleImageClick: PhotoClickHandler = (event, photos) => {
     const imageUrl = search.images[photos.index].url;
-    commandHistory.clearHistory();
     imageStore.loadImage(imageUrl);
     appStore.closeToolbar();
-    canvasStore.setMode("");
-    search.setImageUrl(imageUrl);
   };
 
   const galleryPhotoProp: PhotoProps[] = search.images.map(

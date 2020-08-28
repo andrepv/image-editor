@@ -2,21 +2,23 @@ import React from "react";
 import { useObserver } from "mobx-react";
 import Tooltip from "../Tooltip";
 import useStore from "../../hooks/useStore";
-import { commandHistory } from "../../command/commandHistory";
+import { history } from "../../command/commandHistory";
 import { ReactComponent as Undo } from "../../assets/redo.svg";
 
 export const UndoButton = () => {
-  const {canvasStore, imageStore} = useStore();
+  const {appStore} = useStore();
   return useObserver(() => (
     <div>
       <Tooltip content="Undo" placement="bottom">
         <Undo
-          className={`${
-            !canvasStore.isUndoCommandAvailable ? "disabled" : ""
-          }`}
-          onClick={() => {
-            imageStore.resetScale();
-            commandHistory.undo();
+          className={`${!appStore.canUndo ? "disabled" : ""}`}
+          onClick={async () => {
+            if (!appStore.canUndo) {
+              return;
+            }
+            appStore.isHistoryCommandExecuted = true;
+            await history.undo();
+            appStore.isHistoryCommandExecuted = false;
           }}
         />
       </Tooltip>

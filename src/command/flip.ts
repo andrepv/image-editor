@@ -1,23 +1,26 @@
-import imageStore from "../stores/imageStore";
-import { Command, CommandName } from "./commandHistory";
+import {Command, CommandName} from "./commandHistory";
+import {
+  preventScaleReset,
+  disableHistoryRecording,
+} from "../helpers/decorators";
 
 export class FlipCommand implements Command {
-  public name: CommandName = "flip";
+  name: CommandName = "flip";
   constructor(private flip: () => Promise<void>) {}
 
-  public async execute(): Promise<void> {
-    this.toggleFlip();
+  async execute(): Promise<void> {
+    await this.toggleFlip();
   }
 
-  public async undo(): Promise<void> {
-    this.toggleFlip();
+  async undo(): Promise<void> {
+    await this.toggleFlip();
   }
 
+  @disableHistoryRecording
+  @preventScaleReset
   private async toggleFlip(): Promise<void> {
     try {
-      imageStore.preventAddingCommandsToHistory();
       await this.flip();
-      imageStore.resumeAddingCommandsToHistory();
     } catch (error) {
       console.error(error);
     }
