@@ -1,23 +1,20 @@
 import React, { useRef, useEffect } from "react";
-import { fabric } from "fabric";
-import CanvasAPI from "../canvasAPI/CanvasAPI";
+import useStore from "../hooks/useStore";
 
 const Canvas = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLElement>(null);
   const canvasEl = canvasRef.current;
+  const rootStore = useStore();
 
   useEffect(() => {
     if (!canvasEl) {
       return;
     }
-    const fabricCanvas = new fabric.Canvas(canvasEl);
-    new CanvasAPI(fabricCanvas);
+    rootStore.addCanvasToDocument(canvasEl as HTMLElement);
   }, [canvasEl]);
 
   return (
-    <section className="canvas">
-      <canvas ref={canvasRef}></canvas>
-    </section>
+    <section className="canvas" ref={canvasRef}></section>
   );
 };
 

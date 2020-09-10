@@ -30,12 +30,12 @@ const toolbarOptions = [
 export const ToolbarFilters: React.FC = () => {
   const { imageStore } = useStore();
   const isActive = (filterName: string) => {
-    return imageStore.filter.name === filterName;
+    return imageStore.filterName === filterName;
   };
 
   const renderFilterOptions = () => {
-    if (imageStore.filter.options.length) {
-      return imageStore.filter.options.map((option: any) => {
+    if (imageStore.filterOptions.length) {
+      return imageStore.filterOptions.map((option: any) => {
         if (option.hidden) {
           return null;
         }
@@ -59,7 +59,7 @@ export const ToolbarFilters: React.FC = () => {
     <div className="toolbar__content">
       <ToggleButton
         title="Normal"
-        checked={imageStore.filter.name === ""}
+        checked={imageStore.filterName === ""}
         callback={() => imageStore.addFilter("")}
       />
       {toolbarOptions.map(option => {

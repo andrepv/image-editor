@@ -32,7 +32,7 @@ export class TooltipPosition {
   private bodyWidth: number = document.body.offsetWidth;
   private offset: number = 10;
 
-  public setTooltipPosition(
+  setTooltipPosition(
     placement: string,
     targetEl: HTMLDivElement | null,
     tooltip: HTMLDivElement | null,

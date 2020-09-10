@@ -10,12 +10,12 @@ export class RemoveObjectFromCanvasCommand implements Command {
     private removeObjFromCanvas: (object: fabric.Object) => void,
   ) {}
 
-  async execute(): Promise<void> {
+  execute(): void {
     this.removeObjFromCanvas(this.object);
   }
 
   @disableHistoryRecording
-  async undo(): Promise<void> {
+  undo(): void {
     this.addObjToCanvas(this.object);
   }
 }

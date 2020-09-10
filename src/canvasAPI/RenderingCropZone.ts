@@ -1,39 +1,37 @@
+import rootStore from "../stores/rootStore";
 import { fabric } from "fabric";
 import CropZone from "./CropZone";
-import CanvasAPI from "./CanvasAPI";
 
 export default class RenderingCropZone {
   private innerRect: fabric.Group | null = null;
   private outerRect: fabric.Path | null = null;
   private readonly cropZone: CropZone;
-  private readonly canvasAPI: CanvasAPI;
 
   private readonly FRAME_WIDTH: number = 3;
   private readonly FRAME_CORNERS_SIZE: number = 20;
 
-  constructor(cropZone: CropZone, canvasAPI: CanvasAPI) {
+  constructor(cropZone: CropZone) {
     this.cropZone = cropZone;
-    this.canvasAPI = canvasAPI;
   }
 
-  public render(): void {
+  render(): void {
     if (this.innerRect) {
-      this.canvasAPI.canvas.remove(this.innerRect);
+      rootStore.canvasStore.instance.remove(this.innerRect);
     }
     this.innerRect = this.renderInnerRect();
 
-    this.canvasAPI.canvas.add(this.innerRect);
-    this.canvasAPI.canvas.setActiveObject(this.innerRect);
+    rootStore.canvasStore.instance.add(this.innerRect);
+    rootStore.canvasStore.instance.setActiveObject(this.innerRect);
     this.renderOuterRect();
   }
 
-  public removeAll(): void {
+  removeAll(): void {
     if (this.innerRect) {
-      this.canvasAPI.canvas.remove(this.innerRect);
+      rootStore.canvasStore.instance.remove(this.innerRect);
       this.innerRect = null;
     }
     if (this.outerRect) {
-      this.canvasAPI.canvas.remove(this.outerRect);
+      rootStore.canvasStore.instance.remove(this.outerRect);
       this.outerRect = null;
     }
   }
@@ -53,9 +51,9 @@ export default class RenderingCropZone {
 
   private renderOuterRect(): void {
     if (this.outerRect) {
-      this.canvasAPI.canvas.remove(this.outerRect);
+      rootStore.canvasStore.instance.remove(this.outerRect);
     }
-    const {canvasSize} = this.canvasAPI;
+    const {size: canvasSize} = rootStore.canvasStore;
     const {left, top, width, height} = this.cropZone;
     const right = left + width;
     const bottom = top + height;
@@ -96,7 +94,7 @@ export default class RenderingCropZone {
       hoverCursor: "default",
       name: "overlay",
     });
-    this.canvasAPI.canvas.add(this.outerRect);
+    rootStore.canvasStore.instance.add(this.outerRect);
   }
 
   private renderGrid(): fabric.Group {
@@ -155,7 +153,7 @@ export default class RenderingCropZone {
 
   private drawFrameCorners(): fabric.Object[] {
     const lineOptions = {
-      stroke: this.cropZone.isFocused ? "blue" : "white",
+      stroke:  "white",
       strokeWidth: this.FRAME_WIDTH,
       selectable: false,
     };

@@ -1,6 +1,6 @@
 import { Command, CommandName } from "./commandHistory";
-import imageStore from "../stores/imageStore";
 import { preventScaleReset } from "../helpers/decorators";
+import rootStore from "../stores/rootStore";
 
 export class RotationCommand implements Command {
   name: CommandName = "rotate";
@@ -13,14 +13,14 @@ export class RotationCommand implements Command {
   ) {}
 
   @preventScaleReset
-  async execute(): Promise<void> {
-    imageStore.setAngle(this.angle);
-    imageStore.setBaseScale(this.baseScale);
+  execute(): void {
+    rootStore.canvasStore.rotate(this.angle);
+    rootStore.canvasStore.setBaseScale(this.baseScale);
   }
 
   @preventScaleReset
-  async undo(): Promise<void> {
-    imageStore.setAngle(this.prevAngle);
-    imageStore.setBaseScale(this.prevBaseScale);
+  undo(): void {
+    rootStore.canvasStore.rotate(this.prevAngle);
+    rootStore.canvasStore.setBaseScale(this.prevBaseScale);
   }
 }

@@ -10,7 +10,7 @@ import ToolbarFilters from "./ToolbarFilters";
 import ToolbarSearch from "./ToolbarSearch";
 
 const Toolbar: React.FC = () => {
-  const { appStore, imageStore } = useStore();
+  const { appStore, canvasStore } = useStore();
   const contentMap: any = {
     search: <ToolbarSearch />,
     crop: <ToolbarCrop />,
@@ -22,16 +22,16 @@ const Toolbar: React.FC = () => {
 
   return useObserver(() => (
     <section className={`toolbar ${
-      appStore.mode === "search" ? "toolbar_search" : ""
+      canvasStore.mode === "search" ? "toolbar_search" : ""
       }`}>
       <div className="toolbar__header">
-        <h3 className="toolbar__title">{appStore.mode}</h3>
+        <h3 className="toolbar__title">{canvasStore.mode}</h3>
         <Close onClick={() => {
-          imageStore.resetToBaseScale();
+          canvasStore.resetToBaseScale();
           appStore.closeToolbar();
         }}/>
       </div>
-      {contentMap[appStore.mode]}
+      {contentMap[canvasStore.mode]}
     </section>
   ));
 };

@@ -11,11 +11,11 @@ export class AddObjectToCanvasCommand implements Command {
   ) {}
 
   @disableHistoryRecording
- async execute(): Promise<void> {
+  execute(): void {
     this.addObjToCanvas(this.object);
   }
 
-  async undo(): Promise<void> {
+  undo(): void {
     this.removeObjFromCanvas(this.object);
   }
 }

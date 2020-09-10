@@ -1,6 +1,4 @@
-import appStore from "../stores/appStore";
-
-const DEBUG = true;
+import rootStore from "../stores/rootStore";
 
 export type CommandName = (
   "crop"
@@ -14,8 +12,8 @@ export type CommandName = (
 
 export interface Command {
   name: CommandName;
-  execute: () => Promise<void>;
-  undo: () => Promise<void>;
+  execute: () => Promise<void> | void;
+  undo: () => Promise<void> | void;
 }
 
 export interface IHistory {
@@ -27,9 +25,13 @@ export interface IHistory {
   enableRecording: () => void;
   removeCommands: (name: CommandName) => void;
   isRecordingEnabled: boolean;
+  isHistoryCommandExecuted: boolean;
 }
 
+const DEBUG = true;
+
 export class History implements IHistory {
+  isHistoryCommandExecuted: boolean = false;
   private history: Command[] = [];
   private currentCommandIndex: number = -1;
   private canUndo: boolean = false;
@@ -123,8 +125,8 @@ export class History implements IHistory {
     this.currentCommandIndex = index;
     this.canUndo = index >= 0;
     this.canRedo = index + 1 <= this.history.length - 1;
-    appStore.updateHistoryButtons(this.canUndo, this.canRedo);
+    rootStore.appStore.updateHistoryButtons(this.canUndo, this.canRedo);
   }
 }
 
-export const history = new History();
+// export const history = new History();

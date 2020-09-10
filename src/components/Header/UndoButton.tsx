@@ -2,11 +2,10 @@ import React from "react";
 import { useObserver } from "mobx-react";
 import Tooltip from "../Tooltip";
 import useStore from "../../hooks/useStore";
-import { history } from "../../command/commandHistory";
 import { ReactComponent as Undo } from "../../assets/redo.svg";
 
 export const UndoButton = () => {
-  const {appStore} = useStore();
+  const {appStore, canvasStore} = useStore();
   return useObserver(() => (
     <div>
       <Tooltip content="Undo" placement="bottom">
@@ -16,9 +15,9 @@ export const UndoButton = () => {
             if (!appStore.canUndo) {
               return;
             }
-            appStore.isHistoryCommandExecuted = true;
-            await history.undo();
-            appStore.isHistoryCommandExecuted = false;
+            canvasStore.history.isHistoryCommandExecuted = true;
+            await canvasStore.history.undo();
+            canvasStore.history.isHistoryCommandExecuted = false;
           }}
         />
       </Tooltip>

@@ -20,9 +20,9 @@ export const ToolbarSearch: React.FC = () => {
   } = useUnsplashAPI();
   const [inputValue, setInputValue] = useState("");
 
-  const handleImageClick: PhotoClickHandler = (event, photos) => {
+  const handleImageClick: PhotoClickHandler = async (event, photos) => {
     const imageUrl = search.images[photos.index].url;
-    imageStore.loadImage(imageUrl);
+    await imageStore.load(imageUrl);
     appStore.closeToolbar();
   };
 

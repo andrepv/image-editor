@@ -1,10 +1,10 @@
-import imageStore from "../stores/imageStore";
 import {Command, CommandName} from "./commandHistory";
 import { disableHistoryRecording } from "../helpers/decorators";
+import rootStore from "../stores/rootStore";
 
 export class FilterImageCommand implements Command {
   name: CommandName = "filter";
-  private filterName: string = imageStore.filter.name;
+  private filterName: string = rootStore.imageStore.filterName;
   constructor(private prevFilterName: string) {}
 
   async execute(): Promise<void> {
@@ -18,7 +18,7 @@ export class FilterImageCommand implements Command {
   @disableHistoryRecording
   private async addFilter(filterName: string): Promise<void> {
     try {
-      await imageStore.addFilter(filterName);
+      await rootStore.imageStore.addFilter(filterName);
     } catch (error) {
       console.error(error);
     }

@@ -6,8 +6,9 @@ import { ReactComponent as Crop } from "../../assets/crop.svg";
 
 const ToolbarCrop: React.FC = () => {
   const { cropperStore, appStore } = useStore();
-  const [width, setWidth] = useState(cropperStore.cropZoneWidth);
-  const [height, setHeight] = useState(cropperStore.cropZoneHeight);
+  const [ratio, setRatio] = useState("custom");
+  const [width, setWidth] = useState(0);
+  const [height, setHeight] = useState(0);
 
   const updateWidth = (event: ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(event.target.value, 10) || width;
@@ -31,8 +32,8 @@ const ToolbarCrop: React.FC = () => {
 
   useEffect(() => {
     autorun(() => {
-      setWidth(cropperStore.widthIndicator);
-      setHeight(cropperStore.heightIndicator);
+      setWidth(cropperStore.cropZoneWidth);
+      setHeight(cropperStore.cropZoneHeight);
     });
   }, []);
 
@@ -45,7 +46,7 @@ const ToolbarCrop: React.FC = () => {
             className="toolbar__input"
             value={Math.floor(width)}
             onChange={updateWidth}
-            onBlur={() => cropperStore.changeCropZoneWidth(width)}
+            onBlur={() => cropperStore.setCropZoneWidth(width)}
             min={0}
           />
           <p className="toolbar__label">Height</p>
@@ -54,7 +55,7 @@ const ToolbarCrop: React.FC = () => {
             className="toolbar__input"
             value={Math.floor(height)}
             onChange={updateHeight}
-            onBlur={() => cropperStore.changeCropZoneHeight(height)}
+            onBlur={() => cropperStore.setCropZoneHeight(height)}
             min={0}
           />
         </div>
@@ -64,11 +65,14 @@ const ToolbarCrop: React.FC = () => {
               <div
                 key={index}
                 className={`toolbar__option ${
-                  cropperStore.ratioName === aspectRatio.name
+                  ratio === aspectRatio.name
                     ? "toolbar__option_active"
                     : ""
                 }`}
-                onClick={() => cropperStore.setRatio(aspectRatio)}
+                onClick={() => {
+                  setRatio(aspectRatio.name);
+                  cropperStore.setRatio(aspectRatio.value);
+                }}
               >
                 <Crop />
                 <p className="toolbar__option-title">{aspectRatio.name}</p>
@@ -79,7 +83,7 @@ const ToolbarCrop: React.FC = () => {
         <button
           className="toolbar__crop-btn"
           onClick={() => {
-            cropperStore.crop(true);
+            cropperStore.crop();
             appStore.closeToolbar();
           }}
         >

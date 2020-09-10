@@ -2,11 +2,10 @@ import React from "react";
 import { useObserver } from "mobx-react";
 import Tooltip from "../Tooltip";
 import useStore from "../../hooks/useStore";
-import { history } from "../../command/commandHistory";
 import { ReactComponent as Redo } from "../../assets/redo.svg";
 
 export const RedoButton = () => {
-  const {appStore} = useStore();
+  const {appStore, canvasStore} = useStore();
   return useObserver(() => (
     <div>
       <Tooltip content="Redo" placement="bottom">
@@ -16,9 +15,9 @@ export const RedoButton = () => {
             if (!appStore.canRedo) {
               return;
             }
-            appStore.isHistoryCommandExecuted = true;
-            await history.redo();
-            appStore.isHistoryCommandExecuted = false;
+            canvasStore.history.isHistoryCommandExecuted = true;
+            await canvasStore.history.redo();
+            canvasStore.history.isHistoryCommandExecuted = false;
           }}
         />
       </Tooltip>

@@ -17,9 +17,9 @@ const UploadButton = () => {
     }
 
     const reader = new FileReader();
-    reader.onloadend = () => {
+    reader.onloadend = async () => {
       const imageUrl = String(reader.result);
-      imageStore.loadImage(imageUrl);
+      await imageStore.load(imageUrl);
       appStore.closeToolbar();
     };
     reader.readAsDataURL(file);

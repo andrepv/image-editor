@@ -1,56 +1,52 @@
 import { fabric } from "fabric";
-import CanvasImage from "./Image";
-import CanvasAPI from "./CanvasAPI";
-import imageStore from "../stores/imageStore";
 import { FlipCommand } from "../command/flip";
+import rootStore from "../stores/rootStore";
 
 export default class Flip {
   private axis: "x" | "y" = "x";
 
-  constructor(
-    private image: CanvasImage,
-    private canvasAPI: CanvasAPI,
-  ) {}
-
-  public flipX(): void {
+  flipX(): void {
     this.axis = "x";
     this.flipEachObject();
 
-    this.canvasAPI.history.push(
-      new FlipCommand(() => imageStore.setFlipX(!imageStore.flipX)),
+    rootStore.canvasStore.history.push(
+      new FlipCommand(() => (
+        rootStore.canvasStore.setFlipX(!rootStore.canvasStore.flipX)
+      )),
     );
   }
 
-  public flipY(): void {
+  flipY(): void {
     this.axis = "y";
     this.flipEachObject();
 
-    this.canvasAPI.history.push(
-      new FlipCommand(() => imageStore.setFlipY(!imageStore.flipY)),
+    rootStore.canvasStore.history.push(
+      new FlipCommand(() => (
+        rootStore.canvasStore.setFlipY(!rootStore.canvasStore.flipY)
+      )),
     );
   }
 
   private flipEachObject(): void {
-    if (!this.image) {
+    if (!rootStore.imageStore) {
       return;
     }
-    this.canvasAPI.canvas.forEachObject(obj => this.flipObject(obj));
-    (this.image.imageObject as fabric.Image).center();
-    imageStore.setFlippingStatus = "success";
+    rootStore.canvasStore.instance.forEachObject(obj => this.flipObject(obj));
+    (rootStore.imageStore.instance as fabric.Image).center();
   }
 
   private flipObject(obj: any): void {
-    this.image.rotation.handleObjectAtAngle(
+    rootStore.canvasStore.handleObjectAtAngle(
       obj,
       () => {
         let {width, height}= obj.getBoundingRect();
 
         if (this.axis === "x") {
           obj.flipX = !obj.flipX;
-          obj.left = this.image.width - width - obj.left;
+          obj.left = rootStore.imageStore.width - width - obj.left;
         } else {
           obj.flipY = !obj.flipY;
-          obj.top = this.image.height - height - obj.top;
+          obj.top = rootStore.imageStore.height - height - obj.top;
         }
       },
     );

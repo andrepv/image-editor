@@ -7,19 +7,19 @@ import { ReactComponent as Minus } from "../assets/minus.svg";
 import { useObserver } from "mobx-react";
 
 const ZoomControl: React.FC = () => {
-  const { appStore, imageStore } = useStore();
-  return useObserver(() => (imageStore.url && !appStore.mode) ? (
+  const { canvasStore, imageStore } = useStore();
+  return useObserver(() => (imageStore.url && !canvasStore.mode) ? (
     <div className="zoom">
       <button className="zoom-in" onClick={() => {
-        imageStore.increaseScale();
+        canvasStore.increaseScale();
       }}>
         <Tooltip content="Zoom In" placement="top">
           <Plus/>
         </Tooltip>
       </button>
-      <p>{`${Math.floor(imageStore.scale * 100)}%`}</p>
+      <p>{`${Math.floor(canvasStore.scale * 100)}%`}</p>
       <button className="zoom-out" onClick={() => {
-        imageStore.decreaseScale();
+        canvasStore.decreaseScale();
       }}>
         <Tooltip content="Zoom Out" placement="top">
           <Minus />

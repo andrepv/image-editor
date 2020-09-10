@@ -1,6 +1,4 @@
-import imageStore from "../stores/imageStore";
-import appStore from "../stores/appStore";
-import { history } from "../command/commandHistory";
+import rootStore from "../stores/rootStore";
 
 export function preventScaleReset (
   target: Object,
@@ -10,13 +8,13 @@ export function preventScaleReset (
   let method = descriptor.value;
   descriptor.value = async function(...args: any) {
     let returnValue: any;
-    if (appStore.isToolbarOpen) {
+    if (rootStore.appStore.isToolbarOpen) {
       returnValue = await method.apply(this, args);
-      imageStore.setScale(1);
+      rootStore.canvasStore.setScale(1);
     } else {
-      imageStore.setScale(1);
+      rootStore.canvasStore.setScale(1);
       returnValue = await method.apply(this, args);
-      imageStore.resetToBaseScale();
+      rootStore.canvasStore.resetToBaseScale();
     }
     return returnValue;
   };
@@ -29,9 +27,9 @@ export function disableHistoryRecording (
 ): void {
   let method = descriptor.value;
   descriptor.value = async function(...args: any) {
-    history.disableRecording();
+    rootStore.canvasStore.history.disableRecording();
     let returnValue = await method.apply(this, args);
-    history.enableRecording();
+    rootStore.canvasStore.history.enableRecording();
     return returnValue;
   };
 };

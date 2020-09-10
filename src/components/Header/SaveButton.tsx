@@ -6,8 +6,8 @@ import Tooltip from "../Tooltip";
 import useStore from "../../hooks/useStore";
 
 const SaveButton: React.FC = () => {
-  const { imageStore } = useStore();
-  const saveImage = async () => {
+  const { canvasStore, imageStore } = useStore();
+  const saveImage = () => {
     if (!imageStore.url) {
       return;
     }
@@ -15,7 +15,7 @@ const SaveButton: React.FC = () => {
     const fileName = `image-${randomNum}.png`;
     const link = document.createElement("a");
     link.download = fileName;
-    link.href = await imageStore.getDataUrl();
+    link.href = canvasStore.getDataUrl();
 
     document.body.appendChild(link);
     link.click();

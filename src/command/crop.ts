@@ -1,9 +1,9 @@
-import imageStore from "../stores/imageStore";
 import {Command, CommandName} from "./commandHistory";
 import {
   preventScaleReset,
   disableHistoryRecording,
 } from "../helpers/decorators";
+import rootStore from "../stores/rootStore";
 
 export class CropCommand implements Command {
   name: CommandName = "crop";
@@ -17,15 +17,15 @@ export class CropCommand implements Command {
     private prevImageUrl: string,
     private prevCanvasObjects: fabric.Object[],
   ) {
-    this.prevFlipX = imageStore.flipX;
-    this.prevFlipY = imageStore.flipY;
-    this.prevAngle = imageStore.angle;
-    this.prevBaseScale = imageStore.baseScale;
+    this.prevFlipX = rootStore.canvasStore.flipX;
+    this.prevFlipY = rootStore.canvasStore.flipY;
+    this.prevAngle = rootStore.canvasStore.angle;
+    this.prevBaseScale = rootStore.canvasStore.baseScale;
   }
 
   async execute(): Promise<void> {
     try {
-      await imageStore.setUrl(this.imageUrl);
+      await rootStore.imageStore.update(this.imageUrl);
     } catch (error) {
       console.error(error);
     }
@@ -33,10 +33,10 @@ export class CropCommand implements Command {
 
   async undo(): Promise<void> {
     try {
-      await imageStore.setUrl(this.prevImageUrl);
+      await rootStore.imageStore.update(this.prevImageUrl);
       this.addObjectsToCanvas();
-      imageStore.setBaseScale(1);
-      await this.restoreCanvasState();
+      // rootStore.canvasStore.setBaseScale(1);
+      this.restoreCanvasState();
     } catch (error) {
       console.error(error);
     }
@@ -44,11 +44,11 @@ export class CropCommand implements Command {
 
   @disableHistoryRecording
   @preventScaleReset
-  private async restoreCanvasState(): Promise<void> {
-    imageStore.setAngle(this.prevAngle);
-    await imageStore.setFlipX(this.prevFlipX);
-    await imageStore.setFlipY(this.prevFlipY);
-    imageStore.setBaseScale(this.prevBaseScale);
+  private restoreCanvasState(): void {
+    rootStore.canvasStore.rotate(this.prevAngle);
+    rootStore.canvasStore.setFlipX(this.prevFlipX);
+    rootStore.canvasStore.setFlipY(this.prevFlipY);
+    rootStore.canvasStore.setBaseScale(this.prevBaseScale);
   }
 
   private addObjectsToCanvas(): void {

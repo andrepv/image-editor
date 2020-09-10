@@ -5,28 +5,12 @@ import "./styles/main.scss";
 import App from "./App";
 
 import * as serviceWorker from "./serviceWorker";
-import cropperStore from "./stores/cropperStore";
-import imageStore from "./stores/imageStore";
-import drawingStore from "./stores/drawingStore";
-import textStore from "./stores/textStore";
-import searchStore from "./stores/searchStore";
-import appStore from "./stores/appStore";
-import objectManagerStore from "./stores/objectManagerStore";
 import { StoreProvider } from "./helpers/storeProvider";
-
-const stores = {
-  cropperStore,
-  imageStore,
-  drawingStore,
-  textStore,
-  searchStore,
-  appStore,
-  objectManagerStore,
-};
+import rootStore from "./stores/rootStore";
 
 ReactDOM.render(
   <React.StrictMode>
-    <StoreProvider value={stores}>
+    <StoreProvider value={rootStore}>
       <App />
     </StoreProvider>
   </React.StrictMode>,

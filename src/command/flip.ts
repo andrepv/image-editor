@@ -6,21 +6,21 @@ import {
 
 export class FlipCommand implements Command {
   name: CommandName = "flip";
-  constructor(private flip: () => Promise<void>) {}
+  constructor(private flip: () => void) {}
 
-  async execute(): Promise<void> {
-    await this.toggleFlip();
+  execute(): void {
+    this.toggleFlip();
   }
 
-  async undo(): Promise<void> {
-    await this.toggleFlip();
+  undo(): void {
+    this.toggleFlip();
   }
 
   @disableHistoryRecording
   @preventScaleReset
-  private async toggleFlip(): Promise<void> {
+  private toggleFlip(): void {
     try {
-      await this.flip();
+      this.flip();
     } catch (error) {
       console.error(error);
     }

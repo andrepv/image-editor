@@ -8,7 +8,7 @@ import { ReactComponent as Search } from "../assets/search.svg";
 import Tooltip from "./Tooltip";
 import useStore from "../hooks/useStore";
 import { useObserver } from "mobx-react";
-import { ModeName } from "../stores/appStore";
+import { ModeName } from "../stores/canvasStore";
 
 interface IMenuItems {
   icon: React.ReactElement;
@@ -18,7 +18,7 @@ interface IMenuItems {
 }
 
 const Menu: React.FC = () => {
-  const { appStore, imageStore } = useStore();
+  const { appStore, canvasStore, imageStore } = useStore();
 
   const handleClick = (modeName: ModeName) => {
     if (!imageStore.url && modeName !== "search") {
@@ -27,14 +27,14 @@ const Menu: React.FC = () => {
 
     appStore.toggleToolbar(modeName);
 
-    if (appStore.mode && imageStore.scale !== 1) {
-      if (appStore.mode !== "search") {
-        imageStore.setScale(1);
+    if (canvasStore.mode && canvasStore.scale !== 1) {
+      if (canvasStore.mode !== "search") {
+        canvasStore.setScale(1);
       }
     }
 
-    if (!appStore.mode) {
-      imageStore.resetToBaseScale();
+    if (!canvasStore.mode) {
+      canvasStore.resetToBaseScale();
     }
   };
 
@@ -79,7 +79,7 @@ const Menu: React.FC = () => {
           <Tooltip key={index} content={tooltip} placement="right">
             <div
               className={`menu__item ${
-                appStore.mode === item.name ? "menu__item_active" : ""
+                canvasStore.mode === item.name ? "menu__item_active" : ""
               }`}
               onClick={item.handler}
             >

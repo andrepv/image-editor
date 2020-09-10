@@ -1,30 +1,20 @@
-import imageStore from "../stores/imageStore";
-import CanvasImage from "./Image";
-import CanvasAPI from "./CanvasAPI";
+import rootStore from "../stores/rootStore";
 
 export default class Scaling {
-  public scale: number = 1;
-
-  constructor(
-    private image: CanvasImage,
-    private canvasAPI: CanvasAPI,
-  ) {}
-
-  public setZoom(scale: number): void {
-    this.scale = scale;
-    this.image.setSize();
-    this.canvasAPI.canvas.setZoom(scale);
+  setZoom(scale: number): void {
+    rootStore.imageStore.setSize();
+    rootStore.canvasStore.instance.setZoom(scale);
   }
 
-  public setBaseScale(): void {
+  setBaseScale(): void {
     const scale = this.getBaseScale();
-    imageStore.setBaseScale(scale);
+    rootStore.canvasStore.setBaseScale(scale);
   }
 
-  public getBaseScale(): number {
+  getBaseScale(): number {
     const canvasContainer = document.querySelector(".canvas");
-    const containerHeight = canvasContainer?.clientHeight ?? this.image.height;
-    const scale = Math.floor(containerHeight * 100 / this.image.height);
+    const containerHeight = canvasContainer?.clientHeight ?? rootStore.imageStore.height;
+    const scale = Math.floor(containerHeight * 100 / rootStore.imageStore.height);
     if (scale) {
       return (scale - (scale % 10)) / 100;
     }

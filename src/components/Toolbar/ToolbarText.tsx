@@ -61,7 +61,7 @@ const ToolbarText: React.FC = () => {
       >
         Add Text
       </button>
-      {textStore.isTextControlHidden ? (
+      {objectManagerStore.selectedObject ? (
         <>
         <div className="toolbar__options toolbar__options_text toolbar__block">
           {options.map((option, index) => {
@@ -81,12 +81,11 @@ const ToolbarText: React.FC = () => {
         </div>
         <Slider
           title="Size"
-          value={`${Math.floor(textStore.fontSizeIndicator)}`}
+          value={`${Math.floor(textStore.fontSize)}`}
           min={`${TextСonstants.MIN_FONT_SIZE}`}
           max={`${TextСonstants.MAX_FONT_SIZE}`}
           callback={value => {
             textStore.setFontSize(value);
-            textStore.updateFontSizeIndicator(value);
           }}
         />
         <Slider
@@ -103,12 +102,12 @@ const ToolbarText: React.FC = () => {
         />
         <ToggleButton
           title="Background"
-          checked={!textStore.isBackgroundTransparent}
-          callback={() => textStore.toggleBackgroundTransparency()}
+          checked={!textStore.isBgTransparent}
+          callback={() => textStore.toggleBackground()}
         />
-        {!textStore.isBackgroundTransparent && (
+        {!textStore.isBgTransparent && (
           <ColorPicker
-            currentColorCode={textStore.backgroundColorCode}
+            currentColorCode={textStore.bgColorCode}
             callback={rgbCode => textStore.setBackgroundColor(rgbCode)}
           />
         )}
