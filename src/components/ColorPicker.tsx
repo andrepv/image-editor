@@ -4,11 +4,12 @@ import { hexToRgb, rgbToHex } from "../helpers/colorConverter";
 type Props = {
   title?: string;
   currentColorCode: string;
+  output?: "rgb" | "hex";
   callback: (value: string) => void;
 }
 
 const ColorPicker: React.FC<Props> = props => {
-  const {currentColorCode, callback, title} = props;
+  const {currentColorCode, callback, title, output} = props;
   const [rgbCodes, setRgbCodes] = useState([
     "255, 255, 255",
     "177, 177, 177",
@@ -28,13 +29,16 @@ const ColorPicker: React.FC<Props> = props => {
     event: React.ChangeEvent<HTMLInputElement>,
     elIndex: number,
   ) => {
-    const color = hexToRgb(event.target.value);
-    if (!color) {
+    const hex = event.target.value;
+    const rgb = hexToRgb(hex);
+
+    if (!rgb) {
       return;
     }
+
     const newRgbCodes = [...rgbCodes];
-    newRgbCodes[elIndex] = color;
-    callback(color);
+    newRgbCodes[elIndex] = rgb;
+    callback(output === "hex" ? hex : rgb);
     setRgbCodes(newRgbCodes);
   };
 
@@ -51,7 +55,9 @@ const ColorPicker: React.FC<Props> = props => {
               type="color"
               value={`${hexColorCode}`}
               onChange={event => updateColor(event, index)}
-              onClick={() => callback(rgbCode)}
+              onClick={() => (
+                callback(output === "hex" ? hexColorCode : rgbCode)
+              )}
               className={`colors__color ${
                 rgbCode === currentColorCode ? "colors__color_active" : ""
               }`}

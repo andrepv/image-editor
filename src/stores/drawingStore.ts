@@ -9,13 +9,7 @@ import { IRootStore } from "./rootStore";
 
 import { ModeName } from "./canvasStore";
 import { fabric } from "fabric";
-import { IObjectManager } from "./objectManagerStore";
-
-export interface IDrawing {
-  readonly OBJ_NAME: ModeName;
-  onSessionStart: () => void;
-  onSessionEnd: () => void;
-}
+import { ObjectManagerStore } from "./objectManagerStore";
 
 interface IDrawingMode {
   enable: () => void;
@@ -150,7 +144,7 @@ class StraightLineDrawing implements IDrawingMode {
 
   constructor(
     private readonly canvas: fabric.Canvas,
-    private readonly objectManager: IObjectManager,
+    private readonly objectManager: ObjectManagerStore,
     private readonly store: DrawingStore,
   ) {
     this.listeners = {

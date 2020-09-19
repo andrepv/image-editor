@@ -5,41 +5,29 @@ type Props = {
   value: string;
   min: string;
   max: string;
+  step?: string;
+  renderIcon?: () => JSX.Element;
   callback: (value: number) => void;
 }
 
 const Slider: React.FC<Props> = props => {
-  const {title, value, min, max, callback} = props;
+  const {title, value, min, max, step = 1, callback} = props;
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const minValue = Number(min);
-    const maxValue = Number(max);
-    let inputValue = parseInt(String(event.target.value), 10);
-    if (isNaN(inputValue)) {
-      inputValue = minValue;
-    }
-    inputValue = Math.max(inputValue, minValue);
-    inputValue = Math.min(inputValue, maxValue);
-    callback(inputValue);
+    callback(Number(event.target.value));
   };
 
   return (
     <div className="toolbar__block">
       <div className="slider__header">
         <p className="slider__title">{title}</p>
-        <input
-          type="number"
-          value={value}
-          onChange={handleChange}
-          min={min}
-          max={max}
-          className="slider__input"
-        />
+        <span className="slider__input">{value}</span>
       </div>
       <input
         type="range"
         value={value}
         min={min}
         max={max}
+        step={step}
         onChange={handleChange}
         className="slider"
       />

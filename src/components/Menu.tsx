@@ -3,8 +3,9 @@ import { ReactComponent as Crop } from "../assets/crop.svg";
 import { ReactComponent as Flip } from "../assets/flip.svg";
 import { ReactComponent as Draw } from "../assets/pencil.svg";
 import { ReactComponent as Text } from "../assets/text.svg";
-import { ReactComponent as Filter } from "../assets/filter.svg";
 import { ReactComponent as Search } from "../assets/search.svg";
+
+import { ReactComponent as Adjust } from "../assets/adjust.svg";
 import Tooltip from "./Tooltip";
 import useStore from "../hooks/useStore";
 import { useObserver } from "mobx-react";
@@ -66,9 +67,9 @@ const Menu: React.FC = () => {
       handler: () => handleClick("text"),
     },
     {
-      icon: <Filter />,
-      name: "filters",
-      handler: () => handleClick("filters"),
+      icon: <Adjust />,
+      name: "effects",
+      handler: () => handleClick("effects"),
     },
   ];
   return useObserver(() => (

@@ -4,6 +4,7 @@ import {
   disableHistoryRecording,
 } from "../helpers/decorators";
 import rootStore from "../stores/rootStore";
+import { EffectValue } from "../stores/effectsStore";
 
 export class CropCommand implements Command {
   name: CommandName = "crop";
@@ -11,21 +12,26 @@ export class CropCommand implements Command {
   private prevFlipY: boolean;
   private prevAngle: number;
   private prevBaseScale: number;
+  private prevEffects: EffectValue[];
 
   constructor(
     private imageUrl: string,
     private prevImageUrl: string,
     private prevCanvasObjects: fabric.Object[],
   ) {
-    this.prevFlipX = rootStore.canvasStore.flipX;
-    this.prevFlipY = rootStore.canvasStore.flipY;
-    this.prevAngle = rootStore.canvasStore.angle;
-    this.prevBaseScale = rootStore.canvasStore.baseScale;
+    const {canvasStore: canvas, imageStore: image} = rootStore;
+    this.prevFlipX = canvas.flipX;
+    this.prevFlipY = canvas.flipY;
+    this.prevAngle = canvas.angle;
+    this.prevBaseScale = canvas.baseScale;
+    this.prevEffects = image.effects.getValues();
   }
 
   async execute(): Promise<void> {
     try {
-      await rootStore.imageStore.update(this.imageUrl);
+      const {imageStore: image} = rootStore;
+      await image.update(this.imageUrl);
+      image.effects.savedValues = image.effects.getValues();
     } catch (error) {
       console.error(error);
     }
@@ -35,7 +41,7 @@ export class CropCommand implements Command {
     try {
       await rootStore.imageStore.update(this.prevImageUrl);
       this.addObjectsToCanvas();
-      // rootStore.canvasStore.setBaseScale(1);
+      this.restoreEffects();
       this.restoreCanvasState();
     } catch (error) {
       console.error(error);
@@ -49,6 +55,12 @@ export class CropCommand implements Command {
     rootStore.canvasStore.setFlipX(this.prevFlipX);
     rootStore.canvasStore.setFlipY(this.prevFlipY);
     rootStore.canvasStore.setBaseScale(this.prevBaseScale);
+  }
+
+  private restoreEffects(): void {
+    const {imageStore: image} = rootStore;
+    image.effects.setValues(this.prevEffects);
+    image.effects.savedValues = this.prevEffects;
   }
 
   private addObjectsToCanvas(): void {

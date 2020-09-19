@@ -5,14 +5,6 @@ import { ModeName, CanvasStore } from "./canvasStore";
 import { AddObjectToCanvasCommand } from "../command/addObject";
 import { RemoveObjectFromCanvasCommand } from "../command/removeObject";
 
-export interface IObjectManager {
-  registerObject: (objName: ModeName) => void;
-  selectObject: (obj: fabric.Object) => void;
-  deselectObject: () => void;
-  lockObjects: (exceptions?: string[]) => void;
-  unlockObjects: (exceptions?: string[]) => void;
-}
-
 type NotificationType = "obj_removed" | "obj_added" | "";
 type CanvasObject = fabric.Object | null;
 type Notification = {type: NotificationType, data: any};

@@ -2,7 +2,7 @@ import rootStore from "../stores/rootStore";
 
 export type CommandName = (
   "crop"
-  | "filter"
+  | "effect"
   | "flip"
   | "rotate"
   | "add_object"
@@ -16,21 +16,9 @@ export interface Command {
   undo: () => Promise<void> | void;
 }
 
-export interface IHistory {
-  push: (command: Command) => void;
-  undo: () => Promise<void>;
-  redo: () => Promise<void>;
-  clear: () => void;
-  disableRecording: () => void;
-  enableRecording: () => void;
-  removeCommands: (name: CommandName) => void;
-  isRecordingEnabled: boolean;
-  isHistoryCommandExecuted: boolean;
-}
-
 const DEBUG = true;
 
-export class History implements IHistory {
+export class History {
   isHistoryCommandExecuted: boolean = false;
   private history: Command[] = [];
   private currentCommandIndex: number = -1;
@@ -93,22 +81,6 @@ export class History implements IHistory {
     this.setCurrentCommandIndex(-1);
   }
 
-  removeCommands(name: CommandName): void {
-    if (!name || !this.history) {
-      return;
-    }
-    this.history = this.history.filter(command => command.name !== name);
-
-    if (this.currentCommandIndex + 1 > this.history.length) {
-      this.setCurrentCommandIndex(this.history.length - 1);
-    }
-
-    if (DEBUG) {
-      console.log("remove commands");
-      console.log(this.history);
-    }
-  }
-
   disableRecording(): void {
     this.canAddCommands = false;
   }
@@ -128,5 +100,3 @@ export class History implements IHistory {
     rootStore.appStore.updateHistoryButtons(this.canUndo, this.canRedo);
   }
 }
-
-// export const history = new History();

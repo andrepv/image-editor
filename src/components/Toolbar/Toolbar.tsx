@@ -6,8 +6,8 @@ import ToolbarText from "./ToolbarText";
 import useStore from "../../hooks/useStore";
 import { ReactComponent as Close } from "../../assets/close.svg";
 import { useObserver } from "mobx-react";
-import ToolbarFilters from "./ToolbarFilters";
 import ToolbarSearch from "./ToolbarSearch";
+import ToolbarEffects from "./ToolbarEffects";
 
 const Toolbar: React.FC = () => {
   const { appStore, canvasStore } = useStore();
@@ -17,7 +17,7 @@ const Toolbar: React.FC = () => {
     rotate: <ToolbarRotate />,
     drawing: <ToolbarDrawing />,
     text: <ToolbarText />,
-    filters: <ToolbarFilters />,
+    effects: <ToolbarEffects />,
   };
 
   return useObserver(() => (

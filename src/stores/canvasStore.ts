@@ -1,5 +1,5 @@
 import { observable, action, reaction } from "mobx";
-import { IHistory, History } from "../command/commandHistory";
+import { History } from "../command/commandHistory";
 import { disableHistoryRecording } from "../helpers/decorators";
 import { IRootStore } from "./rootStore";
 import Flip from "../canvasAPI/Flip";
@@ -15,7 +15,13 @@ export type CanvasSize = {
 export type Status = "pending" | "success";
 
 export type ModeName = (
-  "search" | "crop" | "rotate" | "drawing" | "text" | "filters" | ""
+  "search"
+  | "crop"
+  | "rotate"
+  | "drawing"
+  | "text"
+  | "effects"
+  | ""
 );
 
 export class CanvasStore {
@@ -24,7 +30,7 @@ export class CanvasStore {
   @observable flipX: boolean = false;
   @observable flipY: boolean = false;
   @observable mode: ModeName = "";
-  history: IHistory = new History();
+  history: History = new History();
   baseScale: number = 0;
   angleDiff: number = 0;
   instance: fabric.Canvas;

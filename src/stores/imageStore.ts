@@ -1,8 +1,8 @@
 import { IRootStore } from "./rootStore";
-import { observable, action, computed } from "mobx";
+import { observable, action } from "mobx";
 import { CanvasStore, ModeName } from "./canvasStore";
 import { fabric } from "fabric";
-import FilterStore from "./filterStore";
+import EffectsStore from "./effectsStore";
 
 export class ImageStore {
   @observable url: string = "";
@@ -10,24 +10,16 @@ export class ImageStore {
   instance: fabric.Image | null = null;
   width: number = 0;
   height: number = 0;
+  effects: EffectsStore;
   readonly OBJ_NAME: string = "image";
-  private filters: FilterStore;
   private originalUrl: string = "";
   private readonly canvas: CanvasStore;
-
-  @computed get filterName(): string {
-    return this.filters.filter.name;
-  }
-
-  @computed get filterOptions(): any[] {
-    return this.filters.filter.options;
-  }
 
   constructor(private readonly root: IRootStore) {
     this.canvas = root.canvasStore;
     this.element = new Image();
     this.element.setAttribute("crossorigin", "anonymous");
-    this.filters = new FilterStore(this, root.canvasStore);
+    this.effects = new EffectsStore(this, root.canvasStore);
   }
 
   @action async load(url: string): Promise<void> {
@@ -53,27 +45,15 @@ export class ImageStore {
     this.load(this.originalUrl);
   }
 
-  async addFilter(filterName: string): Promise<void> {
-    await this.filters.add(filterName);
-  }
-
-  updateFilterOption(optionName: string, newValue: number): void {
-    this.filters.updateFilterOption(optionName, newValue);
-  }
-
-  resetFilterState(): void {
-    this.filters.resetFilterState();
-  }
-
   onSessionStart(modeName: ModeName): void {
-    if (modeName === "filters") {
-      this.filters.initialize();
+    if (modeName === "effects") {
+      this.effects.onSessionStart();
     }
   }
 
   onSessionEnd(modeName: ModeName): void {
-    if (modeName === "filters") {
-      this.filters.destroy();
+    if (modeName === "effects") {
+      this.effects.onSessionEnd();
     }
   }
 
@@ -112,7 +92,6 @@ export class ImageStore {
       return Promise.reject();
     }
     this.element.src = this.url;
-    this.filters.previousFilteredImage = this.url;
     return new Promise(resolve => {
       fabric.Image.fromURL(this.url, () => {
         this.onLoad();
@@ -129,8 +108,11 @@ export class ImageStore {
   }
 
   private addImage(): void {
+    this.effects.resetAll();
     this.instance = this.createImage();
     this.canvas.instance.add(this.instance);
+
+    this.effects.init();
   }
 
   private createImage(): fabric.Image {
