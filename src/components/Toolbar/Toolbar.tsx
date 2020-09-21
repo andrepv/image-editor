@@ -10,7 +10,7 @@ import ToolbarSearch from "./ToolbarSearch";
 import ToolbarEffects from "./ToolbarEffects";
 
 const Toolbar: React.FC = () => {
-  const { appStore, canvasStore } = useStore();
+  const { UIStore, canvasStore } = useStore();
   const contentMap: any = {
     search: <ToolbarSearch />,
     crop: <ToolbarCrop />,
@@ -28,7 +28,7 @@ const Toolbar: React.FC = () => {
         <h3 className="toolbar__title">{canvasStore.mode}</h3>
         <Close onClick={() => {
           canvasStore.resetToBaseScale();
-          appStore.closeToolbar();
+          UIStore.closeToolbar();
         }}/>
       </div>
       {contentMap[canvasStore.mode]}

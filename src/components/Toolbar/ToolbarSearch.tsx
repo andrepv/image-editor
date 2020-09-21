@@ -10,7 +10,7 @@ import { useObserver } from "mobx-react";
 export const ToolbarSearch: React.FC = () => {
   const {
     imageStore,
-    appStore,
+    UIStore,
     searchStore: search,
   } = useStore();
   const {
@@ -23,7 +23,7 @@ export const ToolbarSearch: React.FC = () => {
   const handleImageClick: PhotoClickHandler = async (event, photos) => {
     const imageUrl = search.images[photos.index].url;
     await imageStore.load(imageUrl);
-    appStore.closeToolbar();
+    UIStore.closeToolbar();
   };
 
   const galleryPhotoProp: PhotoProps[] = search.images.map(

@@ -19,14 +19,14 @@ interface IMenuItems {
 }
 
 const Menu: React.FC = () => {
-  const { appStore, canvasStore, imageStore } = useStore();
+  const { UIStore, canvasStore, imageStore } = useStore();
 
   const handleClick = (modeName: ModeName) => {
     if (!imageStore.url && modeName !== "search") {
       return;
     }
 
-    appStore.toggleToolbar(modeName);
+    UIStore.toggleToolbar(modeName);
 
     if (canvasStore.mode && canvasStore.scale !== 1) {
       if (canvasStore.mode !== "search") {

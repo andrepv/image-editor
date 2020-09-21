@@ -3,7 +3,7 @@ import { CanvasStore } from "./canvasStore";
 import { DrawingStore } from "./drawingStore";
 import { TextStore } from "./textStore";
 import { SearchStore } from "./searchStore";
-import { AppStore } from "./appStore";
+import { UIStore } from "./UIStore";
 import { ObjectManagerStore } from "./objectManagerStore";
 import { fabric } from "fabric";
 import { ImageStore } from "./imageStore";
@@ -14,7 +14,7 @@ export interface IRootStore {
   drawingStore: DrawingStore;
   textStore: TextStore;
   searchStore: SearchStore;
-  appStore: AppStore;
+  UIStore: UIStore;
   imageStore: ImageStore,
   objectManagerStore: ObjectManagerStore;
   addCanvasToDocument: (container: HTMLElement) => void;
@@ -26,7 +26,7 @@ export class RootStore implements IRootStore {
   drawingStore: DrawingStore;
   textStore: TextStore;
   searchStore: SearchStore;
-  appStore: AppStore; // UIStore
+  UIStore: UIStore;
   objectManagerStore: ObjectManagerStore;
   imageStore: ImageStore;
 
@@ -44,7 +44,7 @@ export class RootStore implements IRootStore {
     this.drawingStore = new DrawingStore(this);
     this.textStore = new TextStore(this);
     this.searchStore = new SearchStore(this);
-    this.appStore = new AppStore(this);
+    this.UIStore = new UIStore(this);
   }
 
   addCanvasToDocument(container: HTMLElement): void {

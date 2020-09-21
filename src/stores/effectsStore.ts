@@ -234,9 +234,6 @@ export default class EffectsStore {
   onSessionEnd(): void {
     const values = this.getValues();
 
-    console.log(values);
-    console.log(this.savedValues);
-
     const shouldSaveEffect = values.map((value, index) => {
       return value !== this.savedValues[index];
     }).includes(true);

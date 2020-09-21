@@ -210,7 +210,6 @@ export class TextStore {
         () => this.objectManager.selectedObject,
         selectedObject => {
           if (selectedObject) {
-            console.log("text: objSelected");
             this.text = selectedObject as ITextObject;
             this.updateTextStyle();
           }

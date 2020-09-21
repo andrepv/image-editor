@@ -97,6 +97,6 @@ export class History {
     this.currentCommandIndex = index;
     this.canUndo = index >= 0;
     this.canRedo = index + 1 <= this.history.length - 1;
-    rootStore.appStore.updateHistoryButtons(this.canUndo, this.canRedo);
+    rootStore.UIStore.updateHistoryButtons(this.canUndo, this.canRedo);
   }
 }

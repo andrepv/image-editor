@@ -1,7 +1,7 @@
 import {Command, CommandName} from "./commandHistory";
 import { disableHistoryRecording } from "../helpers/decorators";
 
-export class RemoveObjectFromCanvasCommand implements Command {
+export class RemoveObjectCommand implements Command {
   name: CommandName = "remove_object";
 
   constructor(

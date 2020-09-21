@@ -92,7 +92,6 @@ export class DrawingStore {
         () => this.root.objectManagerStore.notification,
         notification => {
           if (notification.type === "obj_added") {
-            console.log("drawing: objAdded");
             this.onAdded(notification.data);
           }
         },

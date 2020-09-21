@@ -5,14 +5,14 @@ import useStore from "../../hooks/useStore";
 import { ReactComponent as Redo } from "../../assets/redo.svg";
 
 export const RedoButton = () => {
-  const {appStore, canvasStore} = useStore();
+  const {UIStore, canvasStore} = useStore();
   return useObserver(() => (
     <div>
       <Tooltip content="Redo" placement="bottom">
         <Redo
-          className={`${!appStore.canRedo ? "disabled" : ""}`}
+          className={`${!UIStore.canRedo ? "disabled" : ""}`}
           onClick={async () => {
-            if (!appStore.canRedo) {
+            if (!UIStore.canRedo) {
               return;
             }
             canvasStore.history.isHistoryCommandExecuted = true;

@@ -5,14 +5,14 @@ import useStore from "../../hooks/useStore";
 import { ReactComponent as Undo } from "../../assets/redo.svg";
 
 export const UndoButton = () => {
-  const {appStore, canvasStore} = useStore();
+  const {UIStore, canvasStore} = useStore();
   return useObserver(() => (
     <div>
       <Tooltip content="Undo" placement="bottom">
         <Undo
-          className={`${!appStore.canUndo ? "disabled" : ""}`}
+          className={`${!UIStore.canUndo ? "disabled" : ""}`}
           onClick={async () => {
-            if (!appStore.canUndo) {
+            if (!UIStore.canUndo) {
               return;
             }
             canvasStore.history.isHistoryCommandExecuted = true;

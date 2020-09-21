@@ -1,4 +1,4 @@
-import { observable, action, reaction } from "mobx";
+import { observable, action, reaction, computed } from "mobx";
 import { History } from "../command/commandHistory";
 import { disableHistoryRecording } from "../helpers/decorators";
 import { IRootStore } from "./rootStore";
@@ -25,7 +25,7 @@ export type ModeName = (
 );
 
 export class CanvasStore {
-  @observable scale: number = 1;
+  @observable _scale: number = 1;
   @observable angle: number = 0;
   @observable flipX: boolean = false;
   @observable flipY: boolean = false;
@@ -47,6 +47,14 @@ export class CanvasStore {
   private prevAngle: number = 0;
   private prevBaseScale: number = 1;
   private listeners: any;
+
+  @computed get scale() {
+    return this._scale;
+  }
+
+  set scale(value: number) {
+    this._scale = Number(value.toFixed(1));
+  }
 
   constructor(
     private readonly root: IRootStore,

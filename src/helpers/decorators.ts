@@ -8,7 +8,7 @@ export function preventScaleReset (
   let method = descriptor.value;
   descriptor.value = async function(...args: any) {
     let returnValue: any;
-    if (rootStore.appStore.isToolbarOpen) {
+    if (rootStore.UIStore.isToolbarOpen) {
       returnValue = await method.apply(this, args);
       rootStore.canvasStore.setScale(1);
     } else {

@@ -2,8 +2,8 @@ import { observable, action } from "mobx";
 import { IRootStore } from "./rootStore";
 
 import { ModeName, CanvasStore } from "./canvasStore";
-import { AddObjectToCanvasCommand } from "../command/addObject";
-import { RemoveObjectFromCanvasCommand } from "../command/removeObject";
+import { AddObjectCommand } from "../command/addObject";
+import { RemoveObjectCommand } from "../command/removeObject";
 
 type NotificationType = "obj_removed" | "obj_added" | "";
 type CanvasObject = fabric.Object | null;
@@ -134,7 +134,7 @@ export class ObjectManagerStore {
 
   private saveAddCommandInHistory(target: fabric.Object): void {
     this.canvas.history.push(
-      new AddObjectToCanvasCommand(
+      new AddObjectCommand(
         target,
         (object: fabric.Object) => this.canvas.instance.add(object),
         (object: fabric.Object) => this.canvas.instance.remove(object),
@@ -159,7 +159,7 @@ export class ObjectManagerStore {
       return;
     }
     this.canvas.history.push(
-      new RemoveObjectFromCanvasCommand(
+      new RemoveObjectCommand(
         this.selectedObject,
         (object: fabric.Object) => this.canvas.instance.add(object),
         (object: fabric.Object) => this.canvas.instance.remove(object),

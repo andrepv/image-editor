@@ -6,7 +6,7 @@ import useStore from "../../hooks/useStore";
 
 const UploadButton = () => {
   const inputFileRef = useRef<HTMLInputElement>(null);
-  const { imageStore, appStore } = useStore();
+  const { imageStore, UIStore } = useStore();
 
   const uploadImage = (event: ChangeEvent<HTMLInputElement>) => {
     const target = event.target as HTMLInputElement;
@@ -20,7 +20,7 @@ const UploadButton = () => {
     reader.onloadend = async () => {
       const imageUrl = String(reader.result);
       await imageStore.load(imageUrl);
-      appStore.closeToolbar();
+      UIStore.closeToolbar();
     };
     reader.readAsDataURL(file);
   };

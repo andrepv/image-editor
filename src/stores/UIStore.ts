@@ -2,7 +2,7 @@ import { observable, action } from "mobx";
 import { IRootStore } from "./rootStore";
 import { ModeName } from "./canvasStore";
 
-export class AppStore {
+export class UIStore {
   @observable isToolbarOpen: boolean = false;
   @observable canUndo: boolean = false;
   @observable canRedo: boolean = false;
