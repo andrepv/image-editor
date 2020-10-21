@@ -14,8 +14,8 @@
 }
 
 body {
-  font-family: "Open Sans", sans-serif;
-  font-size: 1rem;
+  font-family: $base-font-family;
+  font-size: $base-font-size;
   background-color: $main-bg;
   overflow: hidden;
 }
@@ -43,34 +43,59 @@ button {
   }
 }
 
+input {
+  color: $text-color;
+}
+
+input[type=number] {
+  color:#969696;
+  transition: all .2s;
+  &:focus {
+    border: 0.156vw solid $text-color;
+    outline: none;
+    color: $text-color;
+  }
+  &:hover {
+    color: $text-color;
+  }
+}
+
+input[type=color] {
+	-webkit-appearance: none;
+	border: none;
+	width: 100%;
+  height: 100%;
+  padding: 0;
+  cursor: pointer;
+  background-color: transparent;
+  transition: all .3s;
+  &:focus {
+    outline: none;
+  }
+}
+
+input[type=color]::-webkit-color-swatch-wrapper {
+	padding: 0;
+}
+
+input[type=color]::-webkit-color-swatch {
+	border: none;
+}
+
 .hidden {
   visibility: hidden;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-  background: $border-color;
-  border-radius: 5px;
+  width: 0.469vw;
+  height: 0.469vw;
+  background: $menu-bg;
+  border-radius: 0.391vw;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: $text-color;
-  border-radius: 5px;
-}
-
-.zoom {
-  position: fixed;
-  background: #fff;
-  z-index: 2;
-  display: flex;
-  border-radius: 30px;
-  bottom: 40px;
-  right: 40px;
-  box-shadow: 0px 3px 24px rgba(0,0,0,0.1);
-  button {
-    padding: 10px 13px;
-  }
+  border-radius: 0.391vw;
 }
 
 .slider {
@@ -79,11 +104,9 @@ button {
   &__header {
     display: grid;
     grid-template-columns: 2fr 1fr;
-    margin-bottom: 10px;
-    align-items: center;
+    margin-bottom: 1.172vw;
   }
   &__input {
-    width: 100%;
     text-align: right;
   }
   &__title {
@@ -95,22 +118,11 @@ button {
   &__grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    row-gap: 10px;
-    cursor: default;
+    grid-template-rows: repeat(2, 2.5vw);
   }
-  &__color {
-    width: 25px;
-    height: 25px;
-    border-radius: 50px;
-    cursor: pointer;
-    border: 0;
-    &_active {
-      border: 1px solid;
-    }
-  }
-  &__title {
-    font-weight: 600;
-    margin-bottom: 10px;
+  &__color_active {
+    transform: scale(1.2);
+    box-shadow: 0px 0px 10px #393939;
   }
 }
 
@@ -127,10 +139,10 @@ button {
 
 .checkbox {
   display: inline-block;
-  width: 35px;
-  height: 12px;
-  border-radius: 8px;
-  background: #e4e4e4;
+  width: 2.734vw;
+  height: 0.938vw;
+  border-radius: 0.625vw;
+  background: $border-color;
   vertical-align: middle;
   position: relative;
   cursor: pointer;
@@ -140,16 +152,16 @@ button {
   outline: 0;
   text-align: center;
   -webkit-appearance: none;
-  box-shadow: inset 0 1px 2px rgba(0,0,0,.1);
+  box-shadow: inset 0 0.078vw 0.156vw rgba(0,0,0,.1);
   &:before {
     content: "";
     display: block;
-    width: 17px;
-    height: 17px;
+    width: 1.328vw;
+    height: 1.328vw;
     border-radius: 50%;
     position: absolute;
     top: 50%;
-    left: -3px;
+    left: -0.234vw;
     transition: all 350ms cubic-bezier(0, 0.95, 0.38, 0.98), background 150ms ease;
     background: rgba(0, 0, 0, 0.2);
     transform: translate3d(0, -50%, 0) scale(0);
@@ -157,26 +169,26 @@ button {
   &:after {
     content: "";
     display: block;
-    width: 17px;
-    height: 17px;
+    width: 1.328vw;
+    height: 1.328vw;
     border-radius: 50%;
     position: absolute;
     top: 50%;
-    left: -3px;
+    left: -0.234vw;
     transition: all 350ms cubic-bezier(0, 0.95, 0.38, 0.98), background 150ms ease;
-    background: #C1BFBF;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: $disabled-color;
+    border: 0.078vw solid rgba(0, 0, 0, 0.1);
     transform: translate3d(0, -50%, 0);
   }
   &:checked {
     &:before {
       background: transparent;
       font-size: 0;
-      line-height: 1px;
+      line-height: 0.078vw;
       transform: translate3d(100%, -50%, 0) scale(1);
     }
     &:after {
-      background: #707070;
+      background: $text-color;
       transform: translate3d(100%, -50%, 0);
     }
   }
@@ -185,13 +197,40 @@ button {
   }
 }
 
-
-
 .disabled {
-  fill: #969696;
+  fill: $disabled-color;
   cursor: default;
+  svg {
+    fill: $disabled-color;
+  }
 }
 
-canvas.upper-canvas {
-  border: 1px solid;
+#root {
+  .rc-slider-rail {
+    position: absolute;
+    width: 100%;
+    background-color: $border-color;
+    height: 0.313vw;
+    border-radius: 0.469vw;
+  }
+
+  .rc-slider-handle {
+    border: none;
+    width: 1.09375vw;
+    height: 1.09375vw;
+    margin-top: -.390625vw;
+    &:active {
+      box-shadow: none;
+      border-color: none;
+    }
+  }
+
+  .rc-slider-dot {
+    border: none;
+  }
+
+  .rc-slider-track {
+    background-color: $text-color;
+    height: .3125vw;
+  }
 }

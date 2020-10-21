@@ -13,10 +13,10 @@
   position: absolute;
   z-index: 9999;
   background: $text-color;
-  color: #ffffff;
-  padding: 8px 30px;
-  border-radius: 5px;
-  font-size: .9rem;
+  color: $main-bg;
+  padding: 0.625vw 2.344vw;
+  border-radius: 0.391vw;
+  font-size: .9em;
   &__triangle {
     position: absolute;
     width: 0;
@@ -24,28 +24,28 @@
     border-style: solid;
   }
   &_right .tooltip__triangle {
-    border-width: 7.5px 10px 7.5px 0;
+    border-width: 0.586vw 0.781vw 0.586vw 0;
     border-color: transparent $text-color transparent transparent;
     top: 50%;
     right: 100%;
     transform: translateY(-50%);
   }
   &_left .tooltip__triangle {
-    border-width: 7.5px 0 7.5px 10px;
+    border-width: 0.586vw 0 0.586vw 0.781vw;
     border-color: transparent transparent transparent $text-color;
     top: 50%;
     left: 100%;
     transform: translateY(-50%);
   }
   &_bottom .tooltip__triangle {
-    border-width: 0 7.5px 10px 7.5px;
+    border-width: 0 0.586vw 0.781vw 0.586vw;
     border-color: transparent transparent $text-color transparent;
     left: 50%;
     bottom: 100%;
     transform: translateX(-50%);
   }
   &_top .tooltip__triangle {
-    border-width: 10px 7.5px 0 7.5px;
+    border-width: 0.781vw 0.586vw 0 0.586vw;
     border-color: $text-color transparent transparent transparent;
     top: 100%;
     left: 50%;

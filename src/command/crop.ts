@@ -8,18 +8,20 @@ import { EffectValue } from "../stores/effectsStore";
 
 export class CropCommand implements Command {
   name: CommandName = "crop";
+
   private prevFlipX: boolean;
   private prevFlipY: boolean;
   private prevAngle: number;
   private prevBaseScale: number;
+  private prevImageUrl: string;
   private prevEffects: EffectValue[];
 
   constructor(
     private imageUrl: string,
-    private prevImageUrl: string,
-    private prevCanvasObjects: fabric.Object[],
+    private prevCanvasObjects: any[],
   ) {
     const {canvasStore: canvas, imageStore: image} = rootStore;
+    this.prevImageUrl = rootStore.imageStore.element.src;
     this.prevFlipX = canvas.flipX;
     this.prevFlipY = canvas.flipY;
     this.prevAngle = canvas.angle;
@@ -29,23 +31,22 @@ export class CropCommand implements Command {
 
   async execute(): Promise<void> {
     try {
-      const {imageStore: image} = rootStore;
+      const {imageStore: image, UIStore, canvasStore} = rootStore;
       await image.update(this.imageUrl);
       image.effects.savedValues = image.effects.getValues();
+      if (UIStore.isToolbarOpen) {
+        canvasStore.setScale(1);
+      }
     } catch (error) {
       console.error(error);
     }
   }
 
   async undo(): Promise<void> {
-    try {
-      await rootStore.imageStore.update(this.prevImageUrl);
-      this.addObjectsToCanvas();
-      this.restoreEffects();
-      this.restoreCanvasState();
-    } catch (error) {
-      console.error(error);
-    }
+    await rootStore.imageStore.update(this.prevImageUrl);
+    this.addObjectsToCanvas();
+    this.restoreCanvasState();
+    this.restoreEffects();
   }
 
   @disableHistoryRecording
@@ -65,8 +66,8 @@ export class CropCommand implements Command {
 
   private addObjectsToCanvas(): void {
     this.prevCanvasObjects.forEach(obj => {
-      if (obj.name !== "image") {
-        obj?.canvas?.add(obj);
+      if (obj.name !== rootStore.imageStore.OBJ_NAME) {
+        rootStore.canvasStore.instance.add(obj);
       }
     });
   }

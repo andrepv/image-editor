@@ -1,6 +1,6 @@
 import { observable, action, reaction } from "mobx";
 import { ObjectManagerStore } from "./objectManagerStore";
-import { IRootStore } from "./rootStore";
+import { RootStore } from "./rootStore";
 
 import { fabric } from "fabric";
 import { ModeName } from "./canvasStore";
@@ -50,6 +50,8 @@ type FontStyle = "" | "normal" | "italic" | "oblique" | undefined;
 type FontWeight = string | number | undefined;
 
 export class TextStore {
+  readonly OBJ_NAME: ModeName = "text";
+
   @observable fontWeight: FontWeight = defaultStyles.fontWeight;
   @observable underline: boolean | undefined = defaultStyles.underline;
   @observable fontStyle: FontStyle = defaultStyles.fontStyle;
@@ -60,14 +62,13 @@ export class TextStore {
   @observable isBgTransparent: boolean = defaultStyles.isBgTransparent;
   @observable bgColorCode: string = defaultStyles.bgColorCode;
 
-  readonly OBJ_NAME: ModeName = "text";
-  private canvas: fabric.Canvas;
-  private objectManager: ObjectManagerStore;
+  private readonly canvas: fabric.Canvas;
+  private readonly objectManager: ObjectManagerStore;
+  private readonly listeners: any;
   private text: ITextObject;
-  private listeners: any;
   private reactions: Reactions = null;
 
-  constructor(private readonly root: IRootStore) {
+  constructor(private readonly root: RootStore) {
     this.canvas = root.canvasStore.instance;
     this.objectManager = root.objectManagerStore;
     this.text = new fabric.IText("") as ITextObject;
@@ -75,6 +76,7 @@ export class TextStore {
       onObjectScaling: this.onTextScaling.bind(this),
     };
     this.objectManager.registerObject(this.OBJ_NAME);
+    root.canvasStore.registerSessionManager(this.OBJ_NAME, this);
   }
 
   @action addText(): void {

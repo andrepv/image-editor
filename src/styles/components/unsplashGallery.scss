@@ -1,23 +1,19 @@
 @import "../variables";
 
 .unsplash-gallery {
-  // padding: 30px;
-  // width: 510px;
-  // height: 480px;
-  // overflow-y: scroll;
   &__form {
     display: flex;
-    border-bottom: 1px solid $border-color;
-    padding-bottom: 10px;
+    border-bottom: 0.078vw solid $border-color;
+    padding-bottom: 0.781vw;
   }
   &__submit-btn {
-    padding-right: 10px;
+    padding-right: 0.781vw;
     svg {
       fill: transparent;
       stroke: $text-color;
-      width: 20px;
-      height: 20px;
-      margin-bottom: -4px;
+      width: 1.563vw;
+      height: 1.563vw;
+      margin-bottom: -0.313vw;
     }
   }
   &__input {
@@ -32,7 +28,7 @@
   &__navbar {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    padding: 25px 0;
+    padding: 1.953vw 0;
     button {
       color: $text-color;
       font-size: .95em;
@@ -48,32 +44,21 @@
   }
   &__error {
     color: $text-color;
-    padding: 15px 0;
+    padding: 1.172vw 0;
     font-size: .95em;
     text-align: center;
   }
   &__loader {
     text-align: center;
-    padding-top: 50px;
+    padding-top: 3.906vw;
+    color: $text-color;
+    svg {
+      width: 6.25vw;
+      height: 6.25vw;
+    }
   }
-  &__container {
-    // position: absolute;
-    // top: 55px;
-    // right: -25px;
-    // background: $menu-bg;
-    // box-shadow: 0px 3px 24px rgba(0,0,0,0.1);
-    // z-index: 999;
-    // cursor: default;
-    // &:after {
-    //   content: "";
-    //   bottom: 100%;
-    //   left: 86%;
-    //   position: absolute;
-    //   width: 0;
-    //   height: 0;
-    //   border-style: solid;
-    //   border-width: 0 12.5px 18px 12.5px;
-    //   border-color: transparent transparent white transparent;
-    // }
+  &__container.toolbar__content {
+    padding-left: 0;
+    padding-right: 0;
   }
 }

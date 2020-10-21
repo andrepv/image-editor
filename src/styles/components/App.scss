@@ -1,6 +1,6 @@
 .app {
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  grid-column-gap: 25px;
-  grid-template-rows: 60px 1fr;
+  grid-template-columns: repeat(16, 1fr);
+  grid-template-rows: 9.21vh 1fr;
+  height: 100vh;
 }

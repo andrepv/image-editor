@@ -1,7 +1,7 @@
-import { action, computed } from "mobx";
-import { IRootStore } from "./rootStore";
+import { computed, reaction } from "mobx";
+import { RootStore } from "./rootStore";
 import { CanvasStore } from "./canvasStore";
-import CropZone from "../canvasAPI/CropZone";
+import CropZone from "./cropzoneStore";
 
 interface IEventTransform {
   corner: string,
@@ -34,11 +34,13 @@ export class CropperStore {
     return this.cropZone.height;
   }
 
+  activeInputName: string = "";
+
   private readonly canvas: CanvasStore;
   private readonly cropZone: CropZone;
   private readonly listeners: any;
 
-  constructor(private readonly root: IRootStore) {
+  constructor(private readonly root: RootStore) {
     this.canvas = root.canvasStore;
     this.cropZone = new CropZone(root.canvasStore, root.imageStore);
     this.listeners = {
@@ -47,21 +49,36 @@ export class CropperStore {
       onObjectMoving: this.handleObjectMoving.bind(this),
       onObjectScaling: this.handleObjectScaling.bind(this),
     };
+    root.canvasStore.registerSessionManager("crop", this);
+
+    reaction(
+      () => [
+        root.canvasStore.scale,
+        root.canvasStore.angle,
+        root.imageStore.url,
+      ],
+      () => {
+        if (root.canvasStore.mode === "crop") {
+          this.onSessionEnd();
+          this.onSessionStart();
+        }
+      },
+    );
   }
 
-  @action crop(): void {
+  crop(): void {
     this.cropZone.crop();
   }
 
-  @action setRatio(ratio: Ratio): void {
+  setRatio(ratio: Ratio): void {
     this.cropZone.setRatio(ratio);
   }
 
-  @action setCropZoneWidth(value: number): void {
+  setCropZoneWidth(value: number): void {
     this.cropZone.updateWidth(value);
   }
 
-  @action setCropZoneHeight(value: number): void {
+  setCropZoneHeight(value: number): void {
     this.cropZone.updateHeight(value);
   }
 
@@ -71,8 +88,8 @@ export class CropperStore {
   }
 
   onSessionEnd(): void {
-    this.removeEventListeners();
     this.cropZone.remove();
+    this.removeEventListeners();
   }
 
   private addEventListeners(): void {
@@ -92,7 +109,7 @@ export class CropperStore {
   }
 
   private handleMouseDown(event: fabric.IEvent): void {
-    if (event?.target?.name === "cropzone") {
+    if (event?.target?.name === this.cropZone.OBJ_NAME) {
       this.cropZone.toggleFocus(true);
     }
   }
@@ -102,7 +119,7 @@ export class CropperStore {
   }
 
   private handleObjectMoving(event: fabric.IEvent): void {
-    if (event?.target?.name !== "cropzone") {
+    if (event?.target?.name !== this.cropZone.OBJ_NAME) {
       return;
     }
     const {
@@ -124,7 +141,7 @@ export class CropperStore {
   }
 
   private handleObjectScaling(event: fabric.IEvent): void {
-    if (event?.target?.name !=="cropzone") {
+    if (event?.target?.name !== this.cropZone.OBJ_NAME) {
       return;
     }
     const {

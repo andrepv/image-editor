@@ -2,13 +2,12 @@
   grid-row-start: 1;
   grid-row-end: 3;
   grid-column-start: 2;
-  grid-column-end: 4;
-  margin-left: -25px;
+  grid-column-end: 5;
   background: $toolbar-bg;
-  padding: 43px 25px 0;
   overflow-y: auto;
   height: 100vh;
   transition: all .3s;
+  color: $text-color;
   &-enter {
     transform: translateX(-200%);
   }
@@ -23,97 +22,125 @@
     transform: translateX(-200%);
     transition: all 600ms ease-in-out;
   }
-  &__block {
-    margin-bottom: 30px;
-  }
-  &_search {
-    grid-column-end: 13;
-    z-index: 999;
-    padding: 43px 21%;
-  }
-
-
   &__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 40px;
+    padding: 1.171875vw 1.5625vw;
+    background: $border-color;
     svg {
-      width: 13px;
-      height: 13px;
+      width: .9375vw;
+      height: .9375vw;
       cursor: pointer;
     }
   }
+  &__content {
+    padding: 2.34375vw 1.5625vw;
+    display: grid;
+    grid-row-gap: 2.34375vw;
+    font-size: .95em;
+  }
+
+  &_search {
+    grid-column-end: 17;
+    z-index: 999;
+    padding: 3.75vw 19.6875vw;
+  }
+
+  &__block {
+    &-title {
+    margin-bottom: 1.5625vw;
+    font-weight: 600;
+    font-size: .95em;
+    }
+  }
+
+  &__divider {
+    width: 100%;
+    height: 0.156vw;
+    background: $border-color;
+    margin-bottom: 1.5625vw;
+  }
+
   &__form {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-  &__label {
-    margin: 0;
-    align-self: center;
-  }
-  &__input {
-    width: 100%;
-    justify-self: end;
-    background: transparent;
-    border: 2px solid $border-color;
+    grid-template-columns: 2fr 1fr;
+    gap: .78125vw;
+    &-label {
+      margin: 0;
+      align-self: center;
+      font-weight: 600;
+      font-size: .95em;
+    }
+    &-input {
+      width: 100%;
+      background: transparent;
+      float: right;
+      text-align: right;
+      border: 0.156vw solid $border-color;
+      font-size: .95em;
+      padding: .234375vw .46875vw;
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      &[type=number] {
+        -moz-appearance: textfield;
+      }
+    }
   }
 
   &__options {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    column-gap: 15px;
-    row-gap: 25px;
-    &_text {
+    column-gap: .78125vw;
+    row-gap: .78125vw;
+    &_one-col {
+      grid-template-columns: 1fr;
+    }
+    &_three-col {
       grid-template-columns: repeat(3, 1fr);
     }
   }
-
   &__option {
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     cursor: pointer;
+    height: 4.6875vw;
+    background: $border-color;
+    padding: 1.5625vw 1.172vw;
+    font-weight: 600;
+    font-size: .95em;
+    user-select: none;
     &_active {
-      border: 1px solid;
+      border: .3125vw solid $text-color;
     }
-    &-title {
-      margin: 0;
-      margin-top: 16px;
-      font-weight: 600;
+    &:hover {
+      opacity: .8;
+    }
+    p {
+      margin-left: .78125vw;
     }
     svg {
-      width: 80%;
+      width: 1.5625vw;
+      height: 1.5625vw;
     }
   }
 
-  &__crop-btn {
-    padding: 12px;
-    border: 1px solid;
-    margin: 20px 0 0;
+  &__action-btn {
+    background: $text-color;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    height: 3.906vw;
+    font-size: .95em;
+    transition: all .3s;
+    &:hover {
+      opacity: .8;
+    }
   }
-
-  // &__colors {
-  //   display: grid;
-  //   grid-template-columns: repeat(6, 1fr);
-  //   row-gap: 10px;
-  //   cursor: default;
-  // }
-  // &__color {
-  //   width: 25px;
-  //   height: 25px;
-  //   border-radius: 50px;
-  //   cursor: pointer;
-  //   border: 0;
-  //   &_active {
-  //     border: 1px solid;
-  //   }
-  // }
-  // &__shapes {
-  //   display: grid;
-  //   grid-template-columns: repeat(4, 1fr);
-  // }
-
-  // &__add-text {
-  //   margin-bottom: 20px;;
-  // }
 }

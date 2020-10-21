@@ -1,7 +1,7 @@
 .canvas {
   grid-column-start: 2;
   grid-row-start: 2;
-  grid-column-end: 13;
+  grid-column-end: 17;
   text-align: center;
   display: grid;
   overflow: auto;
@@ -9,13 +9,13 @@
   transform: translateX(0);
   width: 100%;
   height: 88vh;
-  .canvas-container {
+
+  &-container {
     align-self: center;
     justify-self: center;
   }
-}
-
-.toolbar_open .canvas {
-  transform: translateX(23%);
-  width: 81%;
+  &_toolbar-open {
+    transform: translateX(25%);
+    width: calc(100vw - 100vw / 16 * 4);
+  }
 }

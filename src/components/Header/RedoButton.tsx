@@ -11,13 +11,11 @@ export const RedoButton = () => {
       <Tooltip content="Redo" placement="bottom">
         <Redo
           className={`${!UIStore.canRedo ? "disabled" : ""}`}
-          onClick={async () => {
+          onClick={() => {
             if (!UIStore.canRedo) {
               return;
             }
-            canvasStore.history.isHistoryCommandExecuted = true;
-            await canvasStore.history.redo();
-            canvasStore.history.isHistoryCommandExecuted = false;
+            canvasStore.history.redo();
           }}
         />
       </Tooltip>

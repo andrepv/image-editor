@@ -1,35 +1,59 @@
 @import "../variables";
 
 .header {
-  display: grid;
-  justify-content: flex-end;
+  display: flex;
+  align-items: center;
   grid-column-start: 2;
-  grid-column-end: 13;
+  grid-column-end: 17;
   grid-row-start: 1;
-  &__items {
-    display: flex;
-    align-items: center;
+  padding: 0 2.5%;
+  transition: all 600ms ease-in-out;
+  transform: translateX(0);
+  &_toolbar-open {
+    transform: translateX(25%);
+    width: calc(100vw - 100vw / 16 * 4);
   }
-  &__item {
-    padding: 0 20px;
-    cursor: pointer;
-    position: relative;
-    svg {
-      width: 30px;
-      height: 25px;
+  &__items {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+  }
+  &__items-group {
+    display: flex;
+    &:nth-child(1) {
+      .header__item {
+        margin-right: 7.97%;
+        user-select: none;
+      }
+    }
+    &:nth-child(2) {
+      justify-content: center;
+    }
+    &:nth-child(3) {
+      justify-content: flex-end;
+      .header__item {
+        margin-left: 7.97%;
+      }
     }
   }
-  @for $i from 1 through 3 {
-    &__item:nth-child(#{$i}) svg {
-      height: 22px;
+  &__item {
+    cursor: pointer;
+    svg {
+      width: 1.6vw;
+      height: 1.6vw;
+      stroke: $text-color;
     }
   }
   &__upload-image-input {
     display: none;
   }
-  .separator {
-    width: 2px;
-    background: $border-color;
-    height: 26px;
+  .zoom-control {
+    display: flex;
+    align-items: center;
+    color: $text-color;
+    &__value {
+      padding: 0 1.015625vw;
+      cursor: default;
+    }
   }
 }

@@ -5,7 +5,7 @@ import {
   reaction,
   IReactionDisposer,
 } from "mobx";
-import { IRootStore } from "./rootStore";
+import { RootStore } from "./rootStore";
 
 import { ModeName } from "./canvasStore";
 import { fabric } from "fabric";
@@ -20,7 +20,7 @@ export type Reactions = {[reactionName: string]: IReactionDisposer} | null;
 
 export class DrawingStore {
   @observable opacity: number = 1;
-  @observable colorCode: string = "61, 61, 61";
+  @observable colorCode: string = "61,61,61";
   @observable lineWidth: number = 1;
   @observable isLineStraight: boolean = false;
 
@@ -29,14 +29,15 @@ export class DrawingStore {
   }
 
   readonly OBJ_NAME: ModeName = "drawing";
-  private canvas: fabric.Canvas;
-  private reactions: Reactions = null;
 
-  private freeDrawing: IDrawingMode;
-  private straightLineDrawing: IDrawingMode;
+  private readonly canvas: fabric.Canvas;
+  private readonly freeDrawing: IDrawingMode;
+  private readonly straightLineDrawing: IDrawingMode;
+
+  private reactions: Reactions = null;
   private currentMode: IDrawingMode;
 
-  constructor(private readonly root: IRootStore) {
+  constructor(private readonly root: RootStore) {
     root.objectManagerStore.registerObject(this.OBJ_NAME);
     this.canvas = root.canvasStore.instance;
     this.freeDrawing = new FreeDrawing(this.canvas, this);
@@ -46,6 +47,7 @@ export class DrawingStore {
       this,
     );
     this.currentMode = this.freeDrawing;
+    root.canvasStore.registerSessionManager(this.OBJ_NAME, this);
   }
 
   @action setColorCode(colorCode: string): void {

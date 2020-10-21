@@ -1,108 +1,78 @@
-import { observable, action, reaction, computed } from "mobx";
+import { observable, action, reaction } from "mobx";
+import { fabric } from "fabric";
 import { History } from "../command/commandHistory";
 import { disableHistoryRecording } from "../helpers/decorators";
-import { IRootStore } from "./rootStore";
-import Flip from "../canvasAPI/Flip";
-import Rotation from "../canvasAPI/Rotation";
-import Scaling from "../canvasAPI/Scale";
+import { RootStore } from "./rootStore";
 import { RotationCommand } from "../command/rotation";
+import { FlipCommand } from "../command/flip";
 
-export type CanvasSize = {
-  width: number;
-  height: number;
-}
-
-export type Status = "pending" | "success";
+type CanvasSize = {width: number; height: number}
 
 export type ModeName = (
   "search"
   | "crop"
-  | "rotate"
+  | "adjust"
   | "drawing"
   | "text"
   | "effects"
   | ""
 );
 
+interface SessionManager {
+  onSessionStart: (modeName?: ModeName) => void;
+  onSessionEnd: (modeName?: ModeName) => void;
+}
+
 export class CanvasStore {
-  @observable _scale: number = 1;
+  readonly SCALE_STEP: number = 0.1;
+  readonly SCALE_MAX_VALUE: number = 2;
+  readonly SCALE_MIN_VALUE: number = 0.5;
+  readonly SCALE_DEFAULT_VALUE: number = 1;
+  readonly ANGLE_STEP: number = 90;
+
+  @observable scale: number = this.SCALE_DEFAULT_VALUE;
   @observable angle: number = 0;
   @observable flipX: boolean = false;
   @observable flipY: boolean = false;
   @observable mode: ModeName = "";
-  history: History = new History();
+
+  readonly history: History = new History();
   baseScale: number = 0;
   angleDiff: number = 0;
-  instance: fabric.Canvas;
   size: CanvasSize = {width: 0, height: 0};
 
-  private readonly zoomStep: number = 0.1;
-  private readonly angleStep: number = 90;
+  private readonly flip: Flip;
+  private readonly rotation: Rotation;
+  private readonly scaling: Scaling;
 
-  private flip: Flip;
-  private rotation: Rotation;
-  private scaling: Scaling;
+  private readonly listeners: any;
+  private readonly sessionManagers: {[modeName: string]: SessionManager} = {};
 
   private prevMode: ModeName = "";
   private prevAngle: number = 0;
-  private prevBaseScale: number = 1;
-  private listeners: any;
-
-  @computed get scale() {
-    return this._scale;
-  }
-
-  set scale(value: number) {
-    this._scale = Number(value.toFixed(1));
-  }
+  private prevBaseScale: number = this.SCALE_DEFAULT_VALUE;
 
   constructor(
-    private readonly root: IRootStore,
-    canvas: fabric.Canvas,
+    private readonly root: RootStore,
+    readonly instance: fabric.Canvas,
   ) {
-
-    this.instance = canvas;
-    this.flip = new Flip();
-    this.rotation = new Rotation();
-    this.scaling = new Scaling();
+    this.flip = new Flip(root);
+    this.rotation = new Rotation(root);
+    this.scaling = new Scaling(root);
 
     this.listeners = {
       onMouseWheel: this.onMouseWheel.bind(this),
     };
     this.addEventListeners();
-
+    this.registerSessionManager("adjust", this);
     this.instance.selection = false;
 
     reaction(
       () => this.angle,
       () => {
         this.rotation.rotateEachObject();
-        if (this.mode === "crop") {
-          this.updateCurrentMode();
-        }
       },
     );
-
-    reaction(
-      () => this.scale,
-      scale => this.scaling.setZoom(scale),
-    );
-  }
-
-  @action rotateRight(): void {
-    let nextAngle = this.angle + this.angleStep;
-    if (nextAngle > 360) {
-      nextAngle -= 360;
-    }
-    this.rotate(nextAngle);
-  }
-
-  @action rotateLeft(): void {
-    let nextAngle = this.angle - this.angleStep;
-    if (nextAngle < -360) {
-      nextAngle += 360;
-    }
-    this.rotate(nextAngle);
   }
 
   @action rotate(angle: number): void {
@@ -111,46 +81,24 @@ export class CanvasStore {
   }
 
   @action setFlipX(value: boolean): void {
-    if (this.flipX === value) {
-      return;
+    if (this.flipX !== value) {
+      this.flipX = value;
+      this.updateFlip();
+      this.flip.flipX();
     }
-    this.flipX = value;
-    this.updateFlip(() => this.flip.flipX());
   }
 
   @action setFlipY(value: boolean): void {
-    if (this.flipY === value) {
-      return;
+    if (this.flipY !== value) {
+      this.flipY = value;
+      this.updateFlip();
+      this.flip.flipY();
     }
-    this.flipY = value;
-    this.updateFlip(() => this.flip.flipY());
-  }
-
-  @action increaseScale(): void {
-    if (this.scale >= 2) {
-      return;
-    }
-    this.scale += this.zoomStep;
-  }
-
-  @action decreaseScale(): void {
-    if (this.scale <= 0.5) {
-      return;
-    }
-    this.scale -= this.zoomStep;
   }
 
   @action setScale(value: number): void {
-    this.scale = value;
-  }
-
-  @action setBaseScale(value: number): void {
-    this.baseScale = value;
-    this.setScale(value);
-  }
-
-  @action resetToBaseScale(): void {
-    this.scale = this.baseScale;
+    this.scale = Number(value.toFixed(1));
+    this.scaling.setZoom(this.scale);
   }
 
   @action setMode(modeName: ModeName) {
@@ -159,11 +107,56 @@ export class CanvasStore {
     if (this.mode === this.prevMode) {
       return;
     }
-    this.destroyCurrentMode();
+
+    this.disableSession();
+
     if (this.mode) {
       this.prevMode = this.mode;
-      this.initializeMode();
+      this.enableSession();
     }
+  }
+
+  increaseScale(): void {
+    if (this.scale >= this.SCALE_MAX_VALUE) {
+      return;
+    }
+    this.setScale(this.scale + this.SCALE_STEP);
+  }
+
+  decreaseScale(): void {
+    if (this.scale <= this.SCALE_MIN_VALUE) {
+      return;
+    }
+    this.setScale(this.scale - this.SCALE_STEP);
+  }
+
+  setBaseScale(value: number): void {
+    this.baseScale = value;
+    this.setScale(value);
+  }
+
+  resetToBaseScale(): void {
+    this.setScale(this.baseScale);
+  }
+
+  rotateRight(): void {
+    let angle = this.angle + this.ANGLE_STEP;
+    if (angle > 360) {
+      angle -= 360;
+    }
+    this.rotate(angle);
+  }
+
+  rotateLeft(): void {
+    let angle = this.angle - this.ANGLE_STEP;
+    if (angle < -360) {
+      angle += 360;
+    }
+    this.rotate(angle);
+  }
+
+  registerSessionManager(modeName: ModeName, manager: SessionManager): void {
+    this.sessionManagers[modeName] = manager;
   }
 
   getDataUrl(): string {
@@ -172,7 +165,7 @@ export class CanvasStore {
 
   @disableHistoryRecording
   resetState(): void {
-    this.setBaseScale(1);
+    this.setBaseScale(this.SCALE_DEFAULT_VALUE);
     this.rotate(0);
     this.setFlipX(false);
     this.setFlipY(false);
@@ -216,11 +209,27 @@ export class CanvasStore {
     this.scaling.setBaseScale();
   }
 
-  private updateCurrentMode(): void {
-    const modeName = this.mode;
-    this.destroyCurrentMode();
-    this.prevMode = modeName;
-    this.initializeMode();
+  onSessionStart(modeName: ModeName = ""): void {
+    if (modeName === "adjust") {
+      this.prevAngle = this.angle;
+      this.prevBaseScale = this.baseScale;
+    }
+  }
+
+  onSessionEnd(modeName: ModeName = ""): void {
+    if (modeName === "adjust") {
+      this.scaling.setBaseScale();
+      if (this.prevAngle !== this.angle) {
+        this.history.push(
+          new RotationCommand(
+            this.prevAngle,
+            this.angle,
+            this.prevBaseScale,
+            this.baseScale,
+          ),
+        );
+      }
+    }
   }
 
   private addEventListeners(): void {
@@ -240,51 +249,22 @@ export class CanvasStore {
     }
   }
 
-  private destroyCurrentMode(): void {
-    if (this.prevMode === "crop") {
-      this.root.cropperStore.onSessionEnd();
-    } else if (this.prevMode === "drawing") {
-      this.root.drawingStore.onSessionEnd();
-    } else if (this.prevMode === "text") {
-      this.root.textStore.onSessionEnd();
-    } else if (this.prevMode === "rotate") {
-
-      this.scaling.setBaseScale();
-      if (this.prevAngle !== this.angle) {
-        this.history.push(
-          new RotationCommand(
-            this.prevAngle,
-            this.angle,
-            this.prevBaseScale,
-            this.baseScale,
-          ),
-        );
-      }
-
-    } else {
-      this.root.imageStore.onSessionEnd(this.prevMode);
+  private disableSession(): void {
+    const sessionManager = this.sessionManagers[this.prevMode];
+    if (sessionManager) {
+      sessionManager.onSessionEnd(this.prevMode);
     }
     this.prevMode = "";
   }
 
-  private initializeMode(): void {
-    if (this.mode === "crop") {
-      this.root.cropperStore.onSessionStart();
-    } else if (this.mode === "drawing") {
-      this.root.drawingStore.onSessionStart();
-    } else if (this.mode === "text") {
-      this.root.textStore.onSessionStart();
-    } else if (this.mode === "rotate") {
-
-      this.prevAngle = this.angle;
-      this.prevBaseScale = this.baseScale;
-
-    } else {
-      this.root.imageStore.onSessionStart(this.mode);
+  private enableSession(): void {
+    const sessionManager = this.sessionManagers[this.mode];
+    if (sessionManager) {
+      sessionManager.onSessionStart(this.mode);
     }
   }
 
-  private updateFlip(callback: () => void): void {
+  private updateFlip(): void {
     if (this.prevAngle !== this.angle) {
       this.history.push(
         new RotationCommand(
@@ -295,12 +275,201 @@ export class CanvasStore {
         ),
       );
       this.prevAngle = this.angle;
+      this.prevBaseScale = this.scaling.getBaseScale();
     }
+  }
+}
 
-    callback();
+class Scaling {
+  constructor(private root: RootStore) {}
 
-    if (this.mode === "crop") {
-      this.updateCurrentMode();
+  setZoom(scale: number): void {
+    this.root.imageStore.setSize();
+    this.root.canvasStore.instance.setZoom(scale);
+  }
+
+  setBaseScale(): void {
+    const scale = this.getBaseScale();
+    this.root.canvasStore.setBaseScale(scale);
+  }
+
+  getBaseScale(): number {
+    const canvasContainer = document.querySelector(".canvas");
+    const containerHeight = (
+      canvasContainer?.clientHeight ?? this.root.imageStore.height
+    );
+    const scale = Math.floor(
+      containerHeight * 100 / this.root.imageStore.height,
+    );
+    if (scale) {
+      return (scale - (scale % 10)) / 100;
     }
+    return 1;
+  }
+}
+
+class Rotation {
+  constructor(private root: RootStore) {}
+
+  rotateEachObject(): void {
+    if (!this.root.imageStore.instance) {
+      return;
+    }
+    const {x, y} = this.root.canvasStore.getCenter();
+    const prevCanvasCenter = new fabric.Point(x, y);
+    this.root.imageStore.setSize();
+
+    this.root.canvasStore.instance.forEachObject(obj => {
+      this.rotateObject(obj, prevCanvasCenter, this.root.canvasStore.angleDiff);
+    });
+    this.adjustEachObjectScale();
+  }
+
+  private adjustEachObjectScale(): void {
+    const image = this.root.imageStore.instance;
+    if (image) {
+      const canvasWidth = this.root.canvasStore.instance.getWidth();
+      const {width: imageWidth} = image.getBoundingRect();
+      const ratio = canvasWidth / imageWidth;
+      const {top: shiftY, left: shiftX} = image.getBoundingRect();
+
+      this.root.canvasStore.instance.forEachObject(object => {
+        let obj = object as any;
+        if (obj) {
+          obj.top -= shiftY;
+          obj.left -= shiftX;
+          obj.scale(obj.scaleX * ratio);
+          obj.left = obj.left * ratio;
+          obj.top = obj.top * ratio;
+          obj.setCoords();
+        }
+      });
+    }
+  }
+
+  rotateObject(
+    obj: fabric.Object,
+    prevCanvasCenter: fabric.Point,
+    angleDiff: number,
+  ): void {
+    if (!obj) {
+      return;
+    }
+    const {left = 0, top = 0, angle = 0} = obj;
+    const canvasCenter = this.root.canvasStore.getCenter();
+    const radians = fabric.util.degreesToRadians(angleDiff);
+    const diffX = prevCanvasCenter.x - canvasCenter.x;
+    const diffY = prevCanvasCenter.y - canvasCenter.y;
+    const objectPoint = new fabric.Point(left, top);
+    const newObjectPosition = fabric.util.rotatePoint(
+      objectPoint,
+      prevCanvasCenter,
+      radians,
+    );
+    obj.set({
+      left: newObjectPosition.x - diffX,
+      top: newObjectPosition.y - diffY,
+      angle: angleDiff + angle,
+    });
+
+    obj.setCoords();
+  }
+
+  handleObjectAtAngle(obj: any, handler: () => void): void {
+    const originalAngle = this.root.canvasStore.angle;
+    this.rotateObjectToStartingAngle(obj);
+
+    handler();
+
+    const prevCanvasCenter = this.getCanvasCenter();
+    const startingObjAngle = this.root.canvasStore.angle;
+
+    this.setAngle(originalAngle);
+    this.rotateObjectToOriginalAngle(
+      obj,
+      prevCanvasCenter,
+      startingObjAngle,
+    );
+    obj.setCoords();
+  }
+
+  private rotateObjectToStartingAngle(obj: any): void {
+    const prevCanvasCenter = this.getCanvasCenter();
+    const startingAngle = this.root.canvasStore.angle - obj.angle;
+    this.setAngle(startingAngle);
+
+    const angleDiff = 0 - obj.angle;
+    this.rotateObject(obj, prevCanvasCenter, angleDiff);
+  }
+
+  private rotateObjectToOriginalAngle(
+    obj: fabric.Object,
+    prevCanvasCenter: fabric.Point,
+    startingObjAngle: number,
+  ): void {
+    const angleDiff = startingObjAngle + this.root.canvasStore.angle;
+    this.rotateObject(obj, prevCanvasCenter, angleDiff);
+  }
+
+  private getCanvasCenter(): fabric.Point {
+    const {x, y} = this.root.canvasStore.getCenter();
+    return new fabric.Point(x, y);
+  }
+
+  private setAngle(angle: number): void {
+    this.root.canvasStore.angle = angle;
+    this.root.imageStore.setSize();
+  }
+}
+
+class Flip {
+  constructor(private root: RootStore) {}
+  private axis: "x" | "y" = "x";
+
+  flipX(): void {
+    this.axis = "x";
+    this.flipEachObject();
+
+    this.root.canvasStore.history.push(
+      new FlipCommand(() => (
+        this.root.canvasStore.setFlipX(!this.root.canvasStore.flipX)
+      )),
+    );
+  }
+
+  flipY(): void {
+    this.axis = "y";
+    this.flipEachObject();
+
+    this.root.canvasStore.history.push(
+      new FlipCommand(() => (
+        this.root.canvasStore.setFlipY(!this.root.canvasStore.flipY)
+      )),
+    );
+  }
+
+  private flipEachObject(): void {
+    if (this.root.imageStore) {
+      this.root.canvasStore.instance.forEachObject(obj => this.flipObject(obj));
+      this.root.imageStore?.instance?.center();
+    }
+  }
+
+  private flipObject(obj: any): void {
+    this.root.canvasStore.handleObjectAtAngle(
+      obj,
+      () => {
+        let {width, height}= obj.getBoundingRect();
+
+        if (this.axis === "x") {
+          obj.flipX = !obj.flipX;
+          obj.left = this.root.imageStore.width - width - obj.left;
+        } else {
+          obj.flipY = !obj.flipY;
+          obj.top = this.root.imageStore.height - height - obj.top;
+        }
+        obj.setCoords();
+      },
+    );
   }
 }

@@ -19,7 +19,7 @@ export interface Command {
 const DEBUG = true;
 
 export class History {
-  isHistoryCommandExecuted: boolean = false;
+  isCommandInProgress: boolean = false;
   private history: Command[] = [];
   private currentCommandIndex: number = -1;
   private canUndo: boolean = false;
@@ -53,6 +53,7 @@ export class History {
   async undo(): Promise<void> {
     const currentCommand = this.history[this.currentCommandIndex];
     if (currentCommand) {
+      this.isCommandInProgress = true;
       const nextCommandIndex = this.currentCommandIndex - 1;
       this.setCurrentCommandIndex(nextCommandIndex);
       await currentCommand.undo();
@@ -60,11 +61,13 @@ export class History {
       if (DEBUG) {
         console.log("undo");
       }
+      this.isCommandInProgress = false;
     }
   }
 
   async redo(): Promise<void> {
     if (this.canRedo) {
+      this.isCommandInProgress = true;
       const nextCommandIndex = this.currentCommandIndex + 1;
       const currentCommand = this.history[nextCommandIndex];
       this.setCurrentCommandIndex(nextCommandIndex);
@@ -73,6 +76,7 @@ export class History {
       if (DEBUG) {
         console.log("redo");
       }
+      this.isCommandInProgress = false;
     }
   }
 

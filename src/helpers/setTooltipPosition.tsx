@@ -189,5 +189,4 @@ export class TooltipPosition {
   }
 }
 
-const tooltipPosition = new TooltipPosition();
-export default tooltipPosition;
+export default new TooltipPosition();

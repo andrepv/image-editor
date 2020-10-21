@@ -8,19 +8,7 @@ import { ObjectManagerStore } from "./objectManagerStore";
 import { fabric } from "fabric";
 import { ImageStore } from "./imageStore";
 
-export interface IRootStore {
-  cropperStore: CropperStore;
-  canvasStore: CanvasStore;
-  drawingStore: DrawingStore;
-  textStore: TextStore;
-  searchStore: SearchStore;
-  UIStore: UIStore;
-  imageStore: ImageStore,
-  objectManagerStore: ObjectManagerStore;
-  addCanvasToDocument: (container: HTMLElement) => void;
-}
-
-export class RootStore implements IRootStore {
+export class RootStore {
   cropperStore: CropperStore;
   canvasStore: CanvasStore;
   drawingStore: DrawingStore;
@@ -48,7 +36,7 @@ export class RootStore implements IRootStore {
   }
 
   addCanvasToDocument(container: HTMLElement): void {
-    const parent = this.canvasElement.parentElement as any;
+    const parent = this.canvasElement.parentElement as Node;
     container.append(parent);
   }
 }

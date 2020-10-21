@@ -11,18 +11,18 @@ type Props = {
 const ColorPicker: React.FC<Props> = props => {
   const {currentColorCode, callback, title, output} = props;
   const [rgbCodes, setRgbCodes] = useState([
-    "255, 255, 255",
-    "177, 177, 177",
-    "61, 61, 61",
-    "255, 101, 101",
-    "255, 189, 90",
-    "255, 250, 101",
-    "211, 255, 107",
-    "138, 212, 255",
-    "119, 123, 255",
-    "255, 154, 245",
-    "0, 255, 159",
-    "233, 99, 233",
+    "255,255,255",
+    "177,177,177",
+    "61,61,61",
+    "255,101,101",
+    "255,189,90",
+    "255,250,101",
+    "211,255,107",
+    "138,212,255",
+    "119,123,255",
+    "255,154,245",
+    "0,255,159",
+    "233,99,233",
   ]);
 
   const updateColor = (
@@ -44,7 +44,7 @@ const ColorPicker: React.FC<Props> = props => {
 
   return (
     <div className="toolbar__block">
-      {title && <p className="colors__title">{title}</p>}
+      {title && <p className="toolbar__block-title">{title}</p>}
       <div className="colors__grid">
         {rgbCodes.map((rgbCode, index) => {
           const [r, g, b] = rgbCode.split(",").map(item => Number(item));

@@ -6,23 +6,18 @@ import {
 
 export class FlipCommand implements Command {
   name: CommandName = "flip";
+
   constructor(private flip: () => void) {}
 
+  @disableHistoryRecording
+  @preventScaleReset
   execute(): void {
-    this.toggleFlip();
-  }
-
-  undo(): void {
-    this.toggleFlip();
+    this.flip();
   }
 
   @disableHistoryRecording
   @preventScaleReset
-  private toggleFlip(): void {
-    try {
-      this.flip();
-    } catch (error) {
-      console.error(error);
-    }
+  undo(): void {
+    this.flip();
   }
 }

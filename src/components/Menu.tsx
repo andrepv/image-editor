@@ -53,8 +53,8 @@ const Menu: React.FC = () => {
     },
     {
       icon: <Flip />,
-      name: "rotate",
-      handler: () => handleClick("rotate"),
+      name: "adjust",
+      handler: () => handleClick("adjust"),
     },
     {
       icon: <Draw />,
@@ -74,21 +74,23 @@ const Menu: React.FC = () => {
   ];
   return useObserver(() => (
     <section className="menu">
-      {items.map((item, index) => {
-        const tooltip = item.tooltip || item.name;
-        return (
-          <Tooltip key={index} content={tooltip} placement="right">
-            <div
-              className={`menu__item ${
-                canvasStore.mode === item.name ? "menu__item_active" : ""
-              }`}
-              onClick={item.handler}
-            >
-              {item.icon}
-            </div>
-          </Tooltip>
-        );
-      })}
+      <div className="menu__wrapper">
+        {items.map((item, index) => {
+          const tooltip = item.tooltip || item.name;
+          return (
+            <Tooltip key={index} content={tooltip} placement="right">
+              <div
+                className={`menu__item ${
+                  canvasStore.mode === item.name ? "menu__item_active" : ""
+                } ${!imageStore.url && item.name !== "search" ? "disabled" : ""}`}
+                onClick={item.handler}
+              >
+                {item.icon}
+              </div>
+            </Tooltip>
+          );
+        })}
+      </div>
     </section>
   ));
 };

@@ -11,14 +11,16 @@ export class EffectCommand implements Command {
   ) {}
 
   undo(): void {
-    const {effects} = rootStore.imageStore;
-    effects.setValues(this.previousValues);
-    effects.savedValues = this.previousValues;
+    this.setEffect(this.previousValues);
   }
 
   execute(): void {
+    this.setEffect(this.currentValues);
+  }
+
+  setEffect(values: EffectValue[]): void {
     const {effects} = rootStore.imageStore;
-    effects.setValues(this.currentValues);
-    effects.savedValues = this.currentValues;
+    effects.setValues(values);
+    effects.savedValues = values;
   }
 }

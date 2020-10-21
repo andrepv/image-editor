@@ -1,5 +1,5 @@
 import { observable, action } from "mobx";
-import { IRootStore } from "./rootStore";
+import { RootStore } from "./rootStore";
 
 import { ModeName, CanvasStore } from "./canvasStore";
 import { AddObjectCommand } from "../command/addObject";
@@ -16,20 +16,20 @@ export class ObjectManagerStore {
   private readonly selectableObjects: Set<ModeName> = new Set();
   private readonly listeners: any;
 
-  constructor(private readonly root: IRootStore) {
+  constructor(private readonly root: RootStore) {
     this.canvas = root.canvasStore;
     this.listeners = {
       onKeyDown: this.onKeyDown.bind(this),
       onMouseDown: this.onMouseDown.bind(this),
       onAdded: this.onAdded.bind(this),
-      onDelete: this.onDelete.bind(this),
+      // onDelete: this.onDelete.bind(this),
     };
     this.addEventListeners();
   }
 
   deleteSelectedObject(): void {
     if (this.selectedObject) {
-      this.saveRemoveCommandInHistory();
+      this.canvas.history.push(new RemoveObjectCommand(this.selectedObject));
       this.canvas.instance.remove(this.selectedObject);
       this.canvas.instance.renderAll();
       this.deselectObject();
@@ -93,7 +93,7 @@ export class ObjectManagerStore {
   private addEventListeners(): void {
     this.canvas.instance.on("mouse:down", this.listeners.onMouseDown);
     this.canvas.instance.on("object:added", this.listeners.onAdded);
-    this.canvas.instance.on("object:removed", this.listeners.onDelete);
+    // this.canvas.instance.on("object:removed", this.listeners.onDelete);
   }
 
   private onMouseDown(event: fabric.IEvent): void {
@@ -115,9 +115,10 @@ export class ObjectManagerStore {
     if (!this.selectableObjects.has(this.canvas.mode) || !target) {
       return;
     }
-    if (!this.root.canvasStore.history.isHistoryCommandExecuted) {
+
+    if (!this.root.canvasStore.history.isCommandInProgress) {
       this.customizeControls(target);
-      this.saveAddCommandInHistory(target);
+      this.canvas.history.push(new AddObjectCommand(target));
       this.notifyAddingObject(target);
     }
   }
@@ -132,38 +133,15 @@ export class ObjectManagerStore {
     });
   }
 
-  private saveAddCommandInHistory(target: fabric.Object): void {
-    this.canvas.history.push(
-      new AddObjectCommand(
-        target,
-        (object: fabric.Object) => this.canvas.instance.add(object),
-        (object: fabric.Object) => this.canvas.instance.remove(object),
-      ),
-    );
-  }
-
-  private onDelete(): void {
-    if (!this.root.canvasStore.history.isHistoryCommandExecuted) {
-      this.notifyDeletingObject();
-    }
-  }
+  // private onDelete(): void {
+  //   if (!this.root.canvasStore.history.isCommandInProgress) {
+  //     this.notifyDeletingObject();
+  //   }
+  // }
 
   private onKeyDown(event: KeyboardEvent): void {
     if (event.keyCode === 46) {
       this.deleteSelectedObject();
     }
-  }
-
-  private saveRemoveCommandInHistory(): void {
-    if (!this.selectedObject) {
-      return;
-    }
-    this.canvas.history.push(
-      new RemoveObjectCommand(
-        this.selectedObject,
-        (object: fabric.Object) => this.canvas.instance.add(object),
-        (object: fabric.Object) => this.canvas.instance.remove(object),
-      ),
-    );
   }
 }

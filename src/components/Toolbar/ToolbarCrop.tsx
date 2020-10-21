@@ -1,23 +1,24 @@
-import React, { useState, ChangeEvent, useEffect } from "react";
-import { autorun } from "mobx";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import { useObserver } from "mobx-react";
 import useStore from "../../hooks/useStore";
-import { ReactComponent as Crop } from "../../assets/crop.svg";
+import { autorun } from "mobx";
 
 const ToolbarCrop: React.FC = () => {
-  const { cropperStore, UIStore } = useStore();
+  const { cropperStore: cropper, UIStore } = useStore();
   const [ratio, setRatio] = useState("custom");
-  const [width, setWidth] = useState(0);
-  const [height, setHeight] = useState(0);
+  const [cropZoneWidth, setCropZoneWidth] = useState(0);
+  const [cropZoneHeight, setCropZoneHeight] = useState(0);
 
-  const updateWidth = (event: ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(event.target.value, 10) || width;
-    setWidth(value);
+  const updateCropZoneWidth = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(event.target.value, 10);
+    setCropZoneWidth(value);
+    cropper.setCropZoneWidth(value);
   };
 
-  const updateHeight = (event: ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(event.target.value, 10) || height;
-    setHeight(value);
+  const updateCropZoneHeight = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(event.target.value, 10);
+    setCropZoneHeight(value);
+    cropper.setCropZoneHeight(value);
   };
 
   const aspectRatioList = [
@@ -27,67 +28,91 @@ const ToolbarCrop: React.FC = () => {
     {name: "4:3", value: {width: 4, height: 3}},
     {name: "5:4", value: {width: 5, height: 4}},
     {name: "7:5", value: {width: 7, height: 5}},
+    {name: "14:9", value: {width: 14, height: 9}},
     {name: "16:9", value: {width: 16, height: 9}},
   ];
 
   useEffect(() => {
     autorun(() => {
-      setWidth(cropperStore.cropZoneWidth);
-      setHeight(cropperStore.cropZoneHeight);
+      const {
+        cropZoneWidth: width,
+        cropZoneHeight: height,
+        activeInputName,
+      } = cropper;
+      if (!activeInputName) {
+        setCropZoneWidth(width);
+        setCropZoneHeight(height);
+      } else if (activeInputName === "width") {
+        setCropZoneHeight(height);
+      } else if (activeInputName === "height") {
+        setCropZoneWidth(width);
+      }
     });
   }, []);
 
   return useObserver(() => (
       <div className="toolbar__content">
         <div className="toolbar__form">
-          <p className="toolbar__label">Width</p>
+          <p className="toolbar__form-label">Width</p>
           <input
             type="number"
-            className="toolbar__input"
-            value={Math.floor(width)}
-            onChange={updateWidth}
-            onBlur={() => cropperStore.setCropZoneWidth(width)}
+            className="toolbar__form-input"
+            value={Math.floor(cropZoneWidth)}
             min={0}
+            onChange={updateCropZoneWidth}
+            onFocus={() => cropper.activeInputName = "width"}
+            onBlur={() => {
+              cropper.activeInputName = "";
+              setCropZoneWidth(cropper.cropZoneWidth);
+            }}
           />
-          <p className="toolbar__label">Height</p>
+          <p className="toolbar__form-label">Height</p>
           <input
             type="number"
-            className="toolbar__input"
-            value={Math.floor(height)}
-            onChange={updateHeight}
-            onBlur={() => cropperStore.setCropZoneHeight(height)}
+            className="toolbar__form-input"
+            value={Math.floor(cropZoneHeight)}
             min={0}
+            onChange={updateCropZoneHeight}
+            onFocus={() => cropper.activeInputName = "height"}
+            onBlur={() => {
+              cropper.activeInputName = "";
+              setCropZoneHeight(cropper.cropZoneHeight);
+            }}
           />
         </div>
-        <div className="toolbar__options">
-          {aspectRatioList.map((aspectRatio: any, index: number) => {
-            return (
-              <div
-                key={index}
-                className={`toolbar__option ${
-                  ratio === aspectRatio.name
-                    ? "toolbar__option_active"
-                    : ""
-                }`}
-                onClick={() => {
-                  setRatio(aspectRatio.name);
-                  cropperStore.setRatio(aspectRatio.value);
-                }}
-              >
-                <Crop />
-                <p className="toolbar__option-title">{aspectRatio.name}</p>
-              </div>
-            );
-          })}
+
+        <div className="toolbar__block">
+          <div className="toolbar__divider"></div>
+          <p className="toolbar__block-title">Aspect Ratio</p>
+          <div className="toolbar__options">
+            {aspectRatioList.map((aspectRatio, index) => {
+              return (
+                <div
+                  key={index}
+                  className={`toolbar__option ${
+                    ratio === aspectRatio.name
+                      ? "toolbar__option_active"
+                      : ""
+                  }`}
+                  onClick={() => {
+                    setRatio(aspectRatio.name);
+                    cropper.setRatio(aspectRatio.value);
+                  }}
+                >
+                  {aspectRatio.name}
+                </div>
+              );
+            })}
+          </div>
         </div>
         <button
-          className="toolbar__crop-btn"
+          className="toolbar__action-btn"
           onClick={() => {
-            cropperStore.crop();
+            cropper.crop();
             UIStore.closeToolbar();
           }}
         >
-          Crop
+          Apply
         </button>
       </div>
   ));

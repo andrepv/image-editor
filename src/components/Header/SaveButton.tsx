@@ -6,9 +6,9 @@ import Tooltip from "../Tooltip";
 import useStore from "../../hooks/useStore";
 
 const SaveButton: React.FC = () => {
-  const { canvasStore, imageStore } = useStore();
+  const { canvasStore, imageStore, UIStore } = useStore();
   const saveImage = () => {
-    if (!imageStore.url) {
+    if (!imageStore.url || UIStore.isToolbarOpen) {
       return;
     }
     const randomNum = Math.floor(Math.random() * 1000);
@@ -26,7 +26,9 @@ const SaveButton: React.FC = () => {
   return useObserver(() => (
     <Tooltip content="Save" placement="bottom">
       <Save
-        className={`${!imageStore.url ? "disabled" : ""}`}
+        className={`${
+          !imageStore.url || UIStore.isToolbarOpen ? "disabled" : ""
+        }`}
         onClick={saveImage}
       />
     </Tooltip>

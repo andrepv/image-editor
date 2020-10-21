@@ -1,5 +1,5 @@
 import { observable, action } from "mobx";
-import { IRootStore } from "./rootStore";
+import { RootStore } from "./rootStore";
 import { ModeName } from "./canvasStore";
 
 export class UIStore {
@@ -7,7 +7,7 @@ export class UIStore {
   @observable canUndo: boolean = false;
   @observable canRedo: boolean = false;
 
-  constructor(private readonly root: IRootStore) {}
+  constructor(private readonly root: RootStore) {}
 
   @action toggleToolbar(mode: ModeName): void {
     if (this.root.canvasStore.mode === mode || !this.isToolbarOpen) {

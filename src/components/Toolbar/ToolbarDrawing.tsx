@@ -16,16 +16,16 @@ const ToolbarDrawing: React.FC = () => {
       />
       <Slider
         title="Width"
-        value={`${drawingStore.lineWidth}`}
-        min="1"
-        max="150"
+        value={drawingStore.lineWidth}
+        min={1}
+        max={150}
         callback={value => drawingStore.setLineWidth(value)}
       />
       <Slider
         title="Opacity"
-        value={`${Math.round(drawingStore.opacity * 100)}`}
-        min="0"
-        max="100"
+        value={Math.round(drawingStore.opacity * 100)}
+        min={0}
+        max={100}
         callback={value => drawingStore.setOpacity(value / 100)}
       />
       <ToggleButton

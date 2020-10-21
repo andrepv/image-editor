@@ -5,13 +5,17 @@
   grid-row-end: 3;
   background-color: $menu-bg;
   z-index: 2;
+  display: flex;
+  align-items: center;
+  &__wrapper {
+    width: 100%;
+  }
   &__item {
-    padding: 24px;
+    padding: 1.875vw;
     cursor: pointer;
-    text-align: center;
     svg {
-      width: 30px;
-      height: 30px;
+      width: 2.34375vw;
+      height: 2.34375vw;
     }
     &:hover {
       background: $toolbar-bg;

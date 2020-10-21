@@ -1,5 +1,5 @@
 import { observable, action } from "mobx";
-import { IRootStore } from "./rootStore";
+import { RootStore } from "./rootStore";
 
 export class SearchStore {
   @observable images: any[] = [];
@@ -7,10 +7,10 @@ export class SearchStore {
   @observable totalPages: number = 0;
   @observable isLoading: boolean = false;
   @observable isError: boolean = false;
-  @observable keyword: string = "london";
+  @observable keyword: string = "dark";
   @observable isLoaded: boolean = false;
 
-  constructor(public root: IRootStore) {}
+  constructor(public root: RootStore) {}
 
   @action setKeyword(keyword: string): void {
     this.keyword = keyword;

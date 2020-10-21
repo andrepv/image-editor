@@ -6,7 +6,6 @@ import { ReactComponent as Italic } from "../../assets/italic.svg";
 import { ReactComponent as AlignLeft } from "../../assets/align-left.svg";
 import { ReactComponent as AlignCenter } from "../../assets/align-center.svg";
 import { ReactComponent as AlignRight } from "../../assets/align-right.svg";
-import {ReactComponent as Trash } from "../../assets/trash.svg";
 import Slider from "../Slider";
 import ColorPicker from "../ColorPicker";
 import ToggleButton from "../ToggleButton";
@@ -57,13 +56,13 @@ const ToolbarText: React.FC = () => {
     <div className="toolbar__content">
       <button
         onClick={() => textStore.addText()}
-        className="toolbar__block"
+        className="toolbar__action-btn"
       >
         Add Text
       </button>
       {objectManagerStore.selectedObject ? (
         <>
-        <div className="toolbar__options toolbar__options_text toolbar__block">
+        <div className="toolbar__options toolbar__options_three-col">
           {options.map((option, index) => {
             const optionValue = (textStore as any)[option.name];
             return (
@@ -81,18 +80,18 @@ const ToolbarText: React.FC = () => {
         </div>
         <Slider
           title="Size"
-          value={`${Math.floor(textStore.fontSize)}`}
-          min={`${TextСonstants.MIN_FONT_SIZE}`}
-          max={`${TextСonstants.MAX_FONT_SIZE}`}
+          value={Math.floor(textStore.fontSize)}
+          min={TextСonstants.MIN_FONT_SIZE}
+          max={TextСonstants.MAX_FONT_SIZE}
           callback={value => {
             textStore.setFontSize(value);
           }}
         />
         <Slider
           title="Line height"
-          value={`${textStore.lineHeight}`}
-          min={`${TextСonstants.MIN_LINE_HEIGHT}`}
-          max={`${TextСonstants.MAX_LINE_HEIGHT}`}
+          value={textStore.lineHeight}
+          min={TextСonstants.MIN_LINE_HEIGHT}
+          max={TextСonstants.MAX_LINE_HEIGHT}
           callback={value => textStore.setLineHeight(value)}
         />
         <ColorPicker
@@ -111,7 +110,12 @@ const ToolbarText: React.FC = () => {
             callback={rgbCode => textStore.setBackgroundColor(rgbCode)}
           />
         )}
-        <p onClick={() => objectManagerStore.deleteSelectedObject()}>Remove <Trash/></p>
+        <button
+          className="toolbar__action-btn"
+          onClick={() => objectManagerStore.deleteSelectedObject()}
+        >
+          Remove
+        </button>
         </>
       ) : null}
     </div>
