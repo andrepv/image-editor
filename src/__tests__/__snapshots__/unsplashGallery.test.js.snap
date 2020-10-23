@@ -1,3 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`<UnsplashGallery /> should match the snapshot 1`] = `"<div class=\\"unsplash-gallery__container\\"><div class=\\"unsplash-gallery custom-scrollbar\\"><form class=\\"unsplash-gallery__form\\"><button type=\\"submit\\" class=\\"unsplash-gallery__submit-btn\\"><svg>search2.svg</svg></button><input type=\\"text\\" class=\\"unsplash-gallery__input\\" value=\\"\\" placeholder=\\"What are you looking for?\\"/></form><div class=\\"unsplash-gallery__navbar\\"><button class=\\"unsplash-gallery__next-btn\\">Next</button></div><div class=\\"unsplash-gallery__photos\\"><div> </div></div></div></div>"`;

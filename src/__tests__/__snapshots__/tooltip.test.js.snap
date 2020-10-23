@@ -1,5 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`<Tooltip /> should match the snapshot 1`] = `"<div class=\\"tooltip__container\\"><div>Target Element</div></div>"`;
-
-exports[`<TooltipElement /> should match the snapshot 1`] = `"<div class=\\"tooltip tooltip_right hidden\\"><div class=\\"tooltip__triangle\\"></div>test</div>"`;
