@@ -1,3 +1,24 @@
+## Features
+
+- Load Image (from Unsplash or from PC)
+- Save Image
+- Undo/Redo
+- Crop
+- Flip
+- Free Rotation
+- Free Drawing
+- Line Drawing
+- Text
+- Filters
+- Zoom
+
+## Stack
+
+- React js
+- TypeScript
+- MobX
+- Fabricjs
+
 ## Screenshots
 
 ![](https://github.com/andrepv/image-editor/blob/master/screenshots/1.png)
