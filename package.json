@@ -16,7 +16,6 @@
     "googleapis": "^52.1.0",
     "mobx": "^5.15.4",
     "mobx-react": "^6.2.2",
-    "node-sass": "^4.14.1",
     "normalize.css": "^8.0.1",
     "rc-slider": "^9.5.1",
     "react": "^16.13.1",
@@ -53,6 +52,7 @@
     "@types/fabric": "^3.6.5",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
-    "react-test-renderer": "^16.13.1"
+    "react-test-renderer": "^16.13.1",
+    "sass": "^1.49.10"
   }
 }
